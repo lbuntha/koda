@@ -69,7 +69,7 @@ export const SkillMetadataForm: React.FC<SkillMetadataFormProps> = ({
                         value={meta.grade}
                         onChange={e => onMetaChange({ ...meta, grade: e.target.value })}
                     >
-                        {systemConfig.grades.map(g => <option key={g} value={g}>{g}</option>)}
+                        {systemConfig.grades.map(g => <option key={g.id} value={g.id}>{g.label || g.id}</option>)}
                     </select>
                 </div>
                 <div>
@@ -161,9 +161,11 @@ export const SkillMetadataForm: React.FC<SkillMetadataFormProps> = ({
                         value={meta.questionType}
                         onChange={handleQuestionTypeChange}
                     >
-                        {REGISTERED_QUESTION_TYPES.map(qType => (
-                            <option key={qType.id} value={qType.id}>{qType.label}</option>
-                        ))}
+                        {systemConfig.questionTypes.map(typeId => {
+                            // Find definition to get label, fallback to ID if not found
+                            const def = REGISTERED_QUESTION_TYPES.find(d => d.id === typeId);
+                            return <option key={typeId} value={typeId}>{def?.label || typeId}</option>;
+                        })}
                     </select>
                 </div>
 

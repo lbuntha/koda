@@ -180,20 +180,24 @@ export const generateCurriculumSkills = async (
     You are an expert curriculum designer. Create a list of exactly ${count} specific educational skills / learning objectives for:
     Grade: ${grade}
     Subject: ${subject}
-    Topic Focus: ${topic}
-    ${section ? `Specific Section/Unit Name: ${section}` : 'Section: Auto-assign a relevant broad category (e.g., "A. Number Sense")'}
+    Core Topic: ${topic}
+    ${section ? `Specific Category/Unit Name: ${section}` : 'Category: Auto-assign a relevant broad category (e.g., "Number and Place Value")'}
     ${customInstruction ? `\nIMPORTANT INSTRUCTION FROM TEACHER: ${customInstruction}\n` : ''}
     ${questionType ? `PREFERRED QUESTION TYPE: ${questionType}` : ''}
 
-    Structure the output similar to a formal curriculum spreadsheet.
-    The 'section' should be the unit or category name.
-    The 'questionType' should be ${questionTypePrompt}.
-    
+    Structure the output similar to a formal curriculum document with a 3-level hierarchy:
+    1. Category (Broad Section, e.g. "Geometry")
+    2. Topic (Sub-theme, e.g. "2D Shapes")
+    3. Skill (Specific actionable objective, e.g. "Identify triangles")
+
     CRITICAL RULE FOR SKILL NAMES:
     - Keep them SHORT, SIMPLE, and CLEAR.
     - Use 3-6 words maximum.
     - Avoid jargon. Use student-friendly language.
     - Examples: "Add 2-digit numbers", "Identify the noun", "Count objects to 10".
+    
+    The 'topic' field is the sub-theme.
+    The 'section' field is the broad category.
     `;
 
     const response = await ai.models.generateContent({
@@ -206,13 +210,14 @@ export const generateCurriculumSkills = async (
           items: {
             type: Type.OBJECT,
             properties: {
-              section: { type: Type.STRING },
+              section: { type: Type.STRING, description: "Broad Category (e.g. Number and Place Value)" },
+              topic: { type: Type.STRING, description: "Sub-theme (e.g. Counting)" },
               skillName: { type: Type.STRING, description: "Actionable, short skill name (max 6 words)" },
               example: { type: Type.STRING, description: "A concrete example of a question" },
               questionType: { type: Type.STRING },
               difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] }
             },
-            required: ["section", "skillName", "example", "questionType", "difficulty"],
+            required: ["section", "topic", "skillName", "example", "questionType", "difficulty"],
           },
         },
         maxOutputTokens: maxTokens,
@@ -227,11 +232,12 @@ export const generateCurriculumSkills = async (
       const layout = def ? def.defaultLayoutId : 'default';
 
       return {
-        id: `gen - ${Date.now()} -${index} `,
+        id: `gen-${Date.now()}-${index}`,
         grade,
         subject,
         section: item.section,
-        skillId: `S${100 + index} `,
+        topic: item.topic || 'General', // Fallback
+        skillId: `S${100 + index}`,
         skillName: item.skillName,
         example: item.example,
         questionType: item.questionType,

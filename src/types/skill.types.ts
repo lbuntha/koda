@@ -20,6 +20,7 @@ export interface Skill {
     grade: string;
     subject: string;
     section: string;
+    topic?: string;
     skillName: string;
     example: string;
     questionType: string;
@@ -37,6 +38,7 @@ export interface Skill {
     tags?: string[];
     publishedAt?: string;
     publishedBy?: string;
+    createdAt?: string;
     /** Custom AI prompt instruction for this specific component (overrides global default) */
     aiPromptInstruction?: string;
     /** Component-specific configuration values (e.g. { digits: 2, operation: 'add' }) */

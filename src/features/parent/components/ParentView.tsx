@@ -10,12 +10,15 @@ import { EditChildModal } from './EditChildModal';
 import { LimitReachedModal } from './LimitReachedModal';
 
 import { useAuth } from '@auth';
+import { useToast } from '@shared/context';
 
 export const ParentView: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const [children, setChildren] = useState<User[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string>('');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [availableGrades, setAvailableGrades] = useState<string[]>([]);
 
   // Modals state
   const [isAddChildOpen, setIsAddChildOpen] = useState(false);
@@ -64,6 +67,10 @@ export const ParentView: React.FC = () => {
     const tier = config.subscriptionTiers.find(t => t.id === userTierId);
     setMaxChildren(tier?.maxChildren || 1);
 
+    // Process grades for modals ensuring backward compatibility if they are objects
+    const grades = config.grades.map(g => (typeof g === 'string' ? g : g.id));
+    setAvailableGrades(grades);
+
     const allUsers = await getUsers();
     const parent = allUsers.find(u => u.id === user.id);
 
@@ -93,7 +100,7 @@ export const ParentView: React.FC = () => {
 
     // Strict limit check
     if (children.length >= maxChildren) {
-      alert(`Plan limit reached. You can only have ${maxChildren} child profiles on your current plan.`);
+      toast.error('Plan Limit Reached', `You can only have ${maxChildren} child profiles on your current plan.`);
       return;
     }
 
@@ -220,6 +227,7 @@ export const ParentView: React.FC = () => {
         isOpen={isAddChildOpen}
         onClose={() => setIsAddChildOpen(false)}
         onAdd={handleAddChild}
+        availableGrades={availableGrades}
       />
 
       <EditChildModal
@@ -227,6 +235,7 @@ export const ParentView: React.FC = () => {
         onClose={() => setEditingChild(null)}
         child={editingChild}
         onSave={handleUpdateChild}
+        availableGrades={availableGrades}
       />
 
       <LimitReachedModal

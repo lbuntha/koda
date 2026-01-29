@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     X, Camera, Sparkles, Save, Mail, User as UserIcon, Trash2
 } from 'lucide-react';
-import { Button } from '@shared/components/ui';
+import { Button, ConfirmationModal } from '@shared/components/ui';
 import { User } from '@types';
 
 interface EditChildModalProps {
@@ -12,6 +12,7 @@ interface EditChildModalProps {
     child: User | null;
     onSave: (childId: string, updates: Partial<User>) => Promise<void>;
     onDelete?: (childId: string) => Promise<void>;
+    availableGrades?: string[];
 }
 
 // Fun avatars for kids
@@ -20,14 +21,13 @@ const KID_AVATARS = [
     '🦄', '🐲', '🦋', '🐢', '🦖', '🐙', '👾', '🤖',
 ];
 
-const GRADES = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-
 export const EditChildModal: React.FC<EditChildModalProps> = ({
     isOpen,
     onClose,
     child,
     onSave,
-    onDelete
+    onDelete,
+    availableGrades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -37,6 +37,8 @@ export const EditChildModal: React.FC<EditChildModalProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showAvatarPicker, setShowAvatarPicker] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
     // Initialize with child data
     useEffect(() => {
@@ -82,9 +84,12 @@ export const EditChildModal: React.FC<EditChildModalProps> = ({
         }
     };
 
-    const handleDelete = async () => {
+    const handleDeleteClick = () => {
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
         if (!child || !onDelete) return;
-        if (!confirm('Are you sure you want to remove this child profile? This cannot be undone.')) return;
 
         setIsDeleting(true);
         try {
@@ -92,6 +97,7 @@ export const EditChildModal: React.FC<EditChildModalProps> = ({
             onClose();
         } finally {
             setIsDeleting(false);
+            setIsDeleteConfirmOpen(false);
         }
     };
 
@@ -99,6 +105,16 @@ export const EditChildModal: React.FC<EditChildModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <ConfirmationModal
+                isOpen={isDeleteConfirmOpen}
+                title="Remove Child Profile?"
+                message="Are you sure you want to remove this child profile? This cannot be undone."
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setIsDeleteConfirmOpen(false)}
+                confirmLabel="Remove"
+                isDanger={true}
+                isLoading={isDeleting}
+            />
             <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
                 {/* Header with gradient */}
                 <div className="relative bg-gradient-to-br from-indigo-400 to-purple-500 px-6 pt-6 pb-16 flex-shrink-0">
@@ -228,13 +244,13 @@ export const EditChildModal: React.FC<EditChildModalProps> = ({
                             Grade Level (Select Multiple)
                         </label>
                         <div className="flex gap-2 flex-wrap">
-                            {GRADES.map(g => (
+                            {availableGrades.map(g => (
                                 <button
                                     key={g}
                                     onClick={() => toggleGrade(g)}
                                     className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${grades.includes(g)
-                                            ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-200/50'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                        ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-200/50'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
                                         }`}
                                 >
                                     {g}
@@ -262,7 +278,7 @@ export const EditChildModal: React.FC<EditChildModalProps> = ({
                 <div className="px-6 pb-6 flex gap-3">
                     {onDelete && (
                         <button
-                            onClick={handleDelete}
+                            onClick={handleDeleteClick}
                             disabled={isDeleting}
                             className="p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/30 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
                             title="Remove Child"

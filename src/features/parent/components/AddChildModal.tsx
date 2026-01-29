@@ -9,6 +9,7 @@ interface AddChildModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAdd: (name: string, email: string, avatar: string, grades: string[], preferences: string) => Promise<void>;
+    availableGrades?: string[]; // Optional for backward compatibility/graceful degradation
 }
 
 // Fun avatars for kids
@@ -17,12 +18,11 @@ const KID_AVATARS = [
     '🦄', '🐲', '🦋', '🐢', '🦖', '🐙', '👾', '🤖',
 ];
 
-const GRADES = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-
 export const AddChildModal: React.FC<AddChildModalProps> = ({
     isOpen,
     onClose,
-    onAdd
+    onAdd,
+    availableGrades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] // Default fallback
 }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -190,13 +190,13 @@ export const AddChildModal: React.FC<AddChildModalProps> = ({
                             Grade Level (Select Multiple)
                         </label>
                         <div className="flex gap-2 flex-wrap">
-                            {GRADES.map(g => (
+                            {availableGrades.map(g => (
                                 <button
                                     key={g}
                                     onClick={() => toggleGrade(g)}
                                     className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${grades.includes(g)
-                                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200/50'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200/50'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
                                         }`}
                                 >
                                     {g}

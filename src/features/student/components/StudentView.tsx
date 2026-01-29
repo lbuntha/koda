@@ -804,7 +804,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
           streak,
           totalSkills: filteredSkills.length
         }}
-        availableGrades={systemConfig.grades || []}
+        availableGrades={systemConfig.grades.map(g => g.id)}
       />
     </div>
   );

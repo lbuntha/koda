@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, FileText, Sparkles } from 'lucide-react';
+import { BookOpen, FileText, Sparkles, List, ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@features/auth/hooks/useAuth';
 import { getStoredSkills, addSkills, updateSkill, getSystemConfig, SystemConfig, deleteSkill, publishSkill, DEFAULT_SYSTEM_CONFIG } from '@stores';
 import { Skill, Role } from '@types';
@@ -12,14 +12,18 @@ import { CurriculumTable } from './CurriculumTable';
 import { TeacherProfile } from './TeacherProfile';
 import { updateUser } from '@stores';
 import { Avatar } from '@shared/components/ui';
-
+import { GradeCatalogGrid } from './GradeCatalogGrid';
 
 export const TeacherView: React.FC = () => {
     const [skills, setSkills] = useState<Skill[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [systemConfig, setSystemConfig] = useState<SystemConfig>(DEFAULT_SYSTEM_CONFIG);
 
-    // View Toggle for Curriculum Table
+    // Navigation State
+    const [catalogView, setCatalogView] = useState<'CATALOG' | 'DETAILS'>('CATALOG');
+    const [activeFilter, setActiveFilter] = useState<{ grade?: string; subject?: string }>({});
+
+    // Curriculum View State
     const [curriculumView, setCurriculumView] = useState<'LIVE' | 'PENDING'>('PENDING');
 
     // Profile State
@@ -68,6 +72,26 @@ export const TeacherView: React.FC = () => {
         await publishSkill(id, user?.name);
         await refreshSkills();
     };
+
+    // Navigation Handlers
+    const handleSelectGradeSubject = (grade: string, subject?: string) => {
+        setActiveFilter({ grade, subject });
+        setCatalogView('DETAILS');
+    };
+
+    const handleBackToCatalog = () => {
+        setCatalogView('CATALOG');
+        setActiveFilter({});
+    };
+
+    // Filter Skills for Detail View
+    const filteredSkills = skills.filter(s => {
+        if (activeFilter.grade && s.grade !== activeFilter.grade) return false;
+        if (activeFilter.subject && s.subject !== activeFilter.subject) return false;
+        return true;
+    });
+
+
 
     // Callback when QuizGenerator finishes
     const handleQuizGenComplete = async (resultSkill: Skill) => {
@@ -128,10 +152,6 @@ export const TeacherView: React.FC = () => {
         console.log('[TeacherView] Saving profile:', updates);
         const updatedUser = { ...user, ...updates };
         await updateUser(updatedUser as any); // Type assertion needed due to some type mismatch in store vs auth hook potentially
-        // Force reload user or handle via auth context update if needed
-        // Assuming AuthContext updates or we just rely on local state for now?
-        // Actually useAuth might need a refresh function, but for now let's hope it syncs or we trigger a reload.
-        // A simple way is to dispatch an event or rely on the store update if the auth hook listens to it.
         window.dispatchEvent(new Event('user-profile-updated')); // Same pattern as StudentView
     };
 
@@ -188,72 +208,109 @@ export const TeacherView: React.FC = () => {
             {/* Header & Stats */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Curriculum Architect</h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">Design, manage, and publish AI-powered learning paths.</p>
+                    <div className="flex items-center gap-4">
+                        {catalogView === 'DETAILS' ? (
+                            <button
+                                onClick={handleBackToCatalog}
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors group"
+                                title="Back to Dashboard"
+                            >
+                                <ArrowLeft className="w-6 h-6 text-slate-600 dark:text-slate-400 group-hover:text-indigo-600" />
+                            </button>
+                        ) : (
+                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                                <LayoutDashboard className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                        )}
+
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                                {catalogView === 'CATALOG' ? 'Curriculum Architect' : `${activeFilter.grade} Curriculum`}
+                            </h1>
+                            <p className="text-slate-500 dark:text-slate-400 mt-1">
+                                {catalogView === 'CATALOG'
+                                    ? 'Design, manage, and publish AI-powered learning paths.'
+                                    : `Managing learning objectives for ${activeFilter.grade} ${activeFilter.subject ? `- ${activeFilter.subject}` : ''}`
+                                }
+                            </p>
+                        </div>
                     </div>
-                    {/* Button Removed */}
+
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Modules</p>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</h3>
+                {/* Always Show Stats in Catalog, Optional in Details */}
+                {catalogView === 'CATALOG' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Modules</p>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</h3>
+                            </div>
+                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
+                                <BookOpen className="w-6 h-6" />
+                            </div>
                         </div>
-                        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
-                            <BookOpen className="w-6 h-6" />
-                        </div>
-                    </div>
 
-                    <div className="bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Review</p>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.drafts}</h3>
+                        <div className="bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Review</p>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.drafts}</h3>
+                            </div>
+                            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 dark:text-amber-400">
+                                <FileText className="w-6 h-6" />
+                            </div>
                         </div>
-                        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 dark:text-amber-400">
-                            <FileText className="w-6 h-6" />
-                        </div>
-                    </div>
 
-                    <div className="bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Premium Content</p>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.premium}</h3>
-                        </div>
-                        <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 dark:text-emerald-400">
-                            <Sparkles className="w-6 h-6" />
+                        <div className="bg-white dark:bg-slate-900/50 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Premium Content</p>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.premium}</h3>
+                            </div>
+                            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 dark:text-emerald-400">
+                                <Sparkles className="w-6 h-6" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div >
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Generator Panel */}
-                <div className="lg:col-span-4 space-y-6">
-                    <div className="sticky top-8">
-                        <AIGenerator
-                            systemConfig={systemConfig}
-                            onGenerateSuccess={handleGenerateSuccess}
-                            onLoadingChange={setIsLoading}
-                            userId={user?.id || 'teacher-default'}
+            {/* MAIN CONTENT AREA */}
+            {catalogView === 'CATALOG' ? (
+                <GradeCatalogGrid
+                    skills={skills}
+                    onSelectGradeSubject={handleSelectGradeSubject}
+                    gradeConfigs={systemConfig.grades}
+                />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-300">
+                    {/* Generator Panel */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="sticky top-8">
+                            <AIGenerator
+                                systemConfig={systemConfig}
+                                onGenerateSuccess={handleGenerateSuccess}
+                                onLoadingChange={setIsLoading}
+                                userId={user?.id || 'teacher-default'}
+                            // Optional: Pass active filters to pre-fill generator
+                            // grade={activeFilter.grade}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Curriculum View */}
+                    <div className="lg:col-span-8">
+                        <CurriculumTable
+                            skills={filteredSkills}
+                            viewMode={curriculumView}
+                            onViewModeChange={setCurriculumView}
+                            onPublish={handlePublishSkill}
+                            onEdit={setEditingSkill}
+                            onDelete={requestDelete}
+                            onGenQuestions={openQuizGenForSkill}
                         />
                     </div>
                 </div>
-
-                {/* Curriculum Table */}
-                <div className="lg:col-span-8">
-                    <CurriculumTable
-                        skills={skills}
-                        viewMode={curriculumView}
-                        onViewModeChange={setCurriculumView}
-                        onPublish={handlePublishSkill}
-                        onEdit={setEditingSkill}
-                        onDelete={requestDelete}
-                        onGenQuestions={openQuizGenForSkill}
-                    />
-                </div>
-            </div>
+            )}
         </div >
     );
 };

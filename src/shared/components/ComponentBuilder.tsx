@@ -24,8 +24,8 @@ export const ComponentBuilder: React.FC<ComponentBuilderProps> = ({
 }) => {
   const [step, setStep] = useState<1 | 2>(1);
   const [meta, setMeta] = useState<SkillMetadata>({
-    grade: initialData?.grade || 'Grade 1',
-    subject: initialData?.subject || 'Math',
+    grade: initialData?.grade || DEFAULT_SYSTEM_CONFIG.grades[0].id,
+    subject: initialData?.subject || DEFAULT_SYSTEM_CONFIG.subjects[0],
     skillName: initialData?.skillName || '',
     example: initialData?.example || '',
     layout: (initialData?.customLayoutId || 'default'),
@@ -70,8 +70,8 @@ export const ComponentBuilder: React.FC<ComponentBuilderProps> = ({
     if (!initialData) {
       setStep(1);
       setMeta({
-        grade: 'Grade 1',
-        subject: 'Math',
+        grade: DEFAULT_SYSTEM_CONFIG.grades[0].id,
+        subject: DEFAULT_SYSTEM_CONFIG.subjects[0],
         skillName: '',
         example: '',
         layout: 'default',

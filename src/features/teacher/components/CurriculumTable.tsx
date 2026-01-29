@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Save, Check, ListChecks, FileText, UploadCloud, Edit, Zap, Trash2, Sparkles } from 'lucide-react';
+import { BookOpen, Save, Check, ListChecks, FileText, UploadCloud, Edit, Zap, Trash2, Sparkles, CalendarClock } from 'lucide-react';
 import { Card, Button } from '@shared/components/ui';
 import { Skill } from '@types';
 
@@ -28,6 +28,11 @@ export const CurriculumTable: React.FC<CurriculumTableProps> = ({
         } else {
             return skill.moderationStatus !== 'PENDING';
         }
+    }).sort((a, b) => {
+        // Sort by createdAt descending (newest first)
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
     });
 
     const pendingCount = skills.filter(s => s.moderationStatus === 'PENDING').length;
@@ -132,6 +137,12 @@ export const CurriculumTable: React.FC<CurriculumTableProps> = ({
                                                 <span className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">{skill.grade}</span>
                                                 <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
                                                 <span className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">{skill.subject}</span>
+                                                {skill.createdAt && (
+                                                    <span className="text-[10px] text-slate-400 flex items-center gap-1 ml-1" title="Created Date">
+                                                        <CalendarClock className="w-3 h-3" />
+                                                        {new Date(skill.createdAt).toLocaleDateString()}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </td>

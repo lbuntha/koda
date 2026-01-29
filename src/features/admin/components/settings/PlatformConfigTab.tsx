@@ -1,7 +1,7 @@
 // PlatformConfigTab - Grades, Subjects, Quiz Limits, and AI Configuration
 import React, { useState } from 'react';
 import {
-    Settings, Cpu, Plus, X, Image, Palette, Grid3X3,
+    Settings, Cpu, Plus, X, Image, Palette, Grid3X3, ListChecks,
     // Subject Icons
     Calculator, Sigma, Ruler, Pi, Divide,
     FlaskConical, Microscope, Atom, TestTube2, Dna,
@@ -104,6 +104,7 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
     const [newGrade, setNewGrade] = useState('');
     const [newSubject, setNewSubject] = useState('');
     const [editingSubject, setEditingSubject] = useState<string | null>(null);
+    const [editingGrade, setEditingGrade] = useState<string | null>(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null);
     const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
     const toast = useToast();
@@ -132,6 +133,16 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
         toast.success('Subject updated', `"${subjectName}" configuration saved`);
     };
 
+    const updateGradeConfig = (gradeId: string, updates: any) => {
+        const currentGrades = [...config.grades];
+        const index = currentGrades.findIndex(g => g.id === gradeId);
+
+        if (index >= 0) {
+            currentGrades[index] = { ...currentGrades[index], ...updates };
+            onConfigUpdate('grades', currentGrades);
+        }
+    };
+
     const handleAddGrade = async () => {
         if (!newGrade.trim()) return;
         await onAddOption('grades', newGrade.trim());
@@ -142,14 +153,7 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
     const handleAddSubject = async () => {
         if (!newSubject.trim()) return;
         await onAddOption('subjects', newSubject.trim());
-
-        // Also add to subjectConfigs with defaults
-        const newConfig: SubjectConfig = {
-            name: newSubject.trim(),
-            icon: 'BookOpen',
-            color: SUBJECT_COLORS[subjectConfigs.length % SUBJECT_COLORS.length].name
-        };
-        onConfigUpdate('subjectConfigs', [...subjectConfigs, newConfig]);
+        // subjectConfigs update is now handled in the store to prevent race conditions
 
         setNewSubject('');
         toast.success('Subject added', `"${newSubject.trim()}" has been added`);
@@ -193,9 +197,9 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {config.grades.map(g => (
-                                <span key={g} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                                    {g}
-                                    <button onClick={() => onRemoveOption('grades', g)} className="hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                                <span key={g.id} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded text-xs border border-slate-200 dark:border-slate-700 flex items-center gap-1">
+                                    {g.label || g.id}
+                                    <button onClick={() => onRemoveOption('grades', g.id)} className="hover:text-red-500 dark:hover:text-red-400 transition-colors">
                                         <X className="w-3 h-3" />
                                     </button>
                                 </span>
@@ -242,6 +246,162 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
                             })}
                         </div>
                     </div>
+                </div>
+            </Card>
+
+            {/* Grade Customization */}
+            <Card>
+                <div className="flex items-center gap-2 mb-4">
+                    <Grid3X3 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Grade Customization</h3>
+                </div>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    Customize how each grade level appears. Set labels, colors, and descriptions.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {config.grades.map(grade => {
+                        const colorClasses = getColorClasses(grade.color);
+                        const isEditing = editingGrade === grade.id;
+
+                        return (
+                            <div
+                                key={grade.id}
+                                className={`relative rounded-xl border-2 transition-all ${isEditing
+                                    ? 'border-emerald-400 dark:border-emerald-500 shadow-lg'
+                                    : 'border-slate-200 dark:border-slate-700'
+                                    }`}
+                            >
+                                {/* Preview */}
+                                <div
+                                    className={`${colorClasses.bg} ${colorClasses.dark} rounded-t-lg p-4 cursor-pointer`}
+                                    onClick={() => setEditingGrade(isEditing ? null : grade.id)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-12 h-12 rounded-xl bg-white/50 dark:bg-slate-800/50 flex items-center justify-center shadow-sm ${colorClasses.text} text-xl font-bold`}>
+                                            {grade.shortLabel}
+                                        </div>
+                                        <div>
+                                            <h4 className={`font-bold ${colorClasses.text}`}>{grade.label}</h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">{grade.category || 'No Category'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Edit Panel */}
+                                {isEditing && (
+                                    <div className="p-4 bg-white dark:bg-slate-800 rounded-b-lg border-t border-slate-100 dark:border-slate-700 space-y-3">
+                                        {/* Labels */}
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Full Label</label>
+                                                <input
+                                                    type="text"
+                                                    value={grade.label}
+                                                    onChange={(e) => updateGradeConfig(grade.id, { label: e.target.value })}
+                                                    className="w-full border border-slate-200 dark:border-slate-700 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-900"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Short (1-2 chars)</label>
+                                                <input
+                                                    type="text"
+                                                    maxLength={3}
+                                                    value={grade.shortLabel}
+                                                    onChange={(e) => updateGradeConfig(grade.id, { shortLabel: e.target.value })}
+                                                    className="w-full border border-slate-200 dark:border-slate-700 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-900"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Category */}
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Category</label>
+                                            <select
+                                                value={grade.category || 'Other'}
+                                                onChange={(e) => updateGradeConfig(grade.id, { category: e.target.value })}
+                                                className="w-full border border-slate-200 dark:border-slate-700 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-900"
+                                            >
+                                                <option value="Early Childhood">Early Childhood</option>
+                                                <option value="Elementary">Elementary</option>
+                                                <option value="Middle School">Middle School</option>
+                                                <option value="High School">High School</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Description */}
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Description</label>
+                                            <textarea
+                                                value={grade.description || ''}
+                                                onChange={(e) => updateGradeConfig(grade.id, { description: e.target.value })}
+                                                rows={2}
+                                                className="w-full border border-slate-200 dark:border-slate-700 rounded px-2 py-1.5 text-xs bg-white dark:bg-slate-900 resize-none"
+                                            />
+                                        </div>
+
+                                        {/* Color Picker */}
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 flex items-center gap-1">
+                                                <Palette className="w-3 h-3" /> Color
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {SUBJECT_COLORS.map(color => (
+                                                    <button
+                                                        key={color.name}
+                                                        onClick={() => updateGradeConfig(grade.id, { color: color.name })}
+                                                        className={`w-6 h-6 rounded-md ${color.bg} transition-all ${grade.color === color.name
+                                                            ? 'ring-2 ring-offset-1 ring-emerald-400'
+                                                            : 'hover:scale-110'
+                                                            }`}
+                                                        title={color.name}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Subject Selection */}
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 block">
+                                                Allowed Subjects
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5 border border-slate-100 dark:border-slate-700/50 rounded-lg p-2 bg-slate-50 dark:bg-slate-900/50">
+                                                {config.subjects.map(s => {
+                                                    const isActive = grade.subjects?.includes(s);
+                                                    return (
+                                                        <button
+                                                            key={s}
+                                                            onClick={() => {
+                                                                const current = grade.subjects || [];
+                                                                const updated = isActive
+                                                                    ? current.filter(sub => sub !== s)
+                                                                    : [...current, s];
+                                                                updateGradeConfig(grade.id, { subjects: updated });
+                                                            }}
+                                                            className={`px-2 py-1 rounded text-[10px] font-medium border transition-colors ${isActive
+                                                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                                                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                                                }`}
+                                                        >
+                                                            {s}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setEditingGrade(null)}
+                                            className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                                        >
+                                            Done
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </Card>
 
@@ -364,6 +524,48 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
                             </div>
                         );
                     })}
+                </div>
+            </Card>
+
+            {/* Question Types Configuration */}
+            <Card>
+                <div className="flex items-center gap-2 mb-4">
+                    <ListChecks className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Question Types</h3>
+                </div>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    Manage the list of available question types.
+                </p>
+
+                <div className="flex gap-2 mb-4">
+                    <input
+                        className="flex-1 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                        placeholder="Add Question Type ID (e.g. 'Matching')"
+                        id="new-qtype-input" // distinct ID
+                        onKeyDown={(e: any) => {
+                            if (e.key === 'Enter') {
+                                const val = e.currentTarget.value;
+                                if (val && !config.questionTypes.includes(val)) {
+                                    onConfigUpdate('questionTypes', [...(config.questionTypes || []), val.trim()]);
+                                    e.currentTarget.value = '';
+                                }
+                            }
+                        }}
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {(config.questionTypes || []).map(qt => (
+                        <span key={qt} className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-lg text-sm border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
+                            {qt}
+                            <button
+                                onClick={() => onConfigUpdate('questionTypes', config.questionTypes.filter(t => t !== qt))}
+                                className="hover:text-rose-500 transition-colors"
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        </span>
+                    ))}
                 </div>
             </Card>
 

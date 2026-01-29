@@ -1,6 +1,6 @@
 // GamificationTab - Points, rewards, and gamification rules with documentation
 import React, { useState } from 'react';
-import { Zap, Trash2, BookOpen, ChevronDown, ChevronUp, Trophy, Flame, Target, Clock, Star, TrendingUp, Edit2, Check, X } from 'lucide-react';
+import { Zap, Trash2, BookOpen, ChevronDown, ChevronUp, Trophy, Flame, Target, Clock, Star, TrendingUp, Edit2, Check, X, Plus } from 'lucide-react';
 import { GlobalSettings, SystemConfig } from '@stores';
 import { RewardRule, Difficulty } from '@types';
 import { Card, Button } from '@shared/components/ui';
@@ -296,9 +296,9 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         {/* Type Selector */}
                         <div>
-                            <label className="text-xs font-bold text-slate-500 block mb-1">Criteria Type</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Criteria Type</label>
                             <select
-                                className="w-full border rounded p-2 text-sm"
+                                className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-semibold bg-transparent transition-colors cursor-pointer"
                                 value={config.defaultMasteryRequirements?.type || 'QUESTIONS'}
                                 onChange={e => onConfigUpdate('defaultMasteryRequirements', {
                                     ...config.defaultMasteryRequirements,
@@ -312,12 +312,12 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
 
                         {/* Target Value */}
                         <div>
-                            <label className="text-xs font-bold text-slate-500 block mb-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
                                 {config.defaultMasteryRequirements?.type === 'QUESTIONS' ? 'Target # Questions' : 'Target XP'}
                             </label>
                             <input
                                 type="number"
-                                className="w-full border rounded p-2 text-sm font-bold"
+                                className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
                                 value={config.defaultMasteryRequirements?.value || 10}
                                 onChange={e => onConfigUpdate('defaultMasteryRequirements', {
                                     ...config.defaultMasteryRequirements,
@@ -328,10 +328,10 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
 
                         {/* Accuracy Gate */}
                         <div>
-                            <label className="text-xs font-bold text-slate-500 block mb-1">Min Accuracy (%)</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Min Accuracy (%)</label>
                             <input
                                 type="number"
-                                className="w-full border rounded p-2 text-sm"
+                                className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
                                 value={config.defaultMasteryRequirements?.minAccuracy || 80}
                                 onChange={e => onConfigUpdate('defaultMasteryRequirements', {
                                     ...config.defaultMasteryRequirements,
@@ -370,44 +370,43 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                     <h3 className="text-lg font-bold text-slate-800">Point Configuration</h3>
                 </div>
 
-                {/* Standard Quiz Points */}
                 <h5 className="text-xs font-bold text-slate-500 uppercase mb-3">Quiz Mode Configuration</h5>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 pb-6 border-b border-slate-100">
                     <div>
-                        <label className="text-xs font-bold text-slate-500 block mb-1">Base Points</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Base Points</label>
                         <input
                             type="number"
-                            className="w-full border rounded p-2 text-sm font-bold"
+                            className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
                             value={globalSettings.baseMasteryPoints}
                             onChange={e => onSettingsUpdate('baseMasteryPoints', Number(e.target.value))}
                         />
                         <p className="text-[10px] text-slate-400 mt-1">Per correct answer</p>
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 block mb-1">Speed Bonus</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Speed Bonus</label>
                         <input
                             type="number"
-                            className="w-full border rounded p-2 text-sm font-bold"
+                            className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
                             value={globalSettings.speedBonusFast}
                             onChange={e => onSettingsUpdate('speedBonusFast', Number(e.target.value))}
                         />
                         <p className="text-[10px] text-slate-400 mt-1">Quick answer bonus</p>
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 block mb-1">Streak Bonus</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Streak Bonus</label>
                         <input
                             type="number"
-                            className="w-full border rounded p-2 text-sm font-bold"
+                            className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
                             value={globalSettings.streakBonus}
                             onChange={e => onSettingsUpdate('streakBonus', Number(e.target.value))}
                         />
                         <p className="text-[10px] text-slate-400 mt-1">Per streak step</p>
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 block mb-1">Penalty</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Penalty</label>
                         <input
                             type="number"
-                            className="w-full border rounded p-2 text-sm font-bold text-rose-600"
+                            className="w-full border-b border-transparent hover:border-slate-300 focus:border-rose-500 outline-none py-1 text-sm font-bold text-rose-600 bg-transparent transition-colors"
                             value={globalSettings.standardPenaltyPoints}
                             onChange={e => onSettingsUpdate('standardPenaltyPoints', Number(e.target.value))}
                         />
@@ -415,24 +414,23 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                     </div>
                 </div>
 
-                {/* Accuracy Mode Points */}
                 <h5 className="text-xs font-bold text-slate-500 uppercase mb-3">Accuracy Mode Configuration (Drawing/Tracing)</h5>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div>
-                        <label className="text-xs font-bold text-slate-500 block mb-1">Max Accuracy Points</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Max Accuracy Points</label>
                         <input
                             type="number"
-                            className="w-full border rounded p-2 text-sm font-bold text-purple-600"
+                            className="w-full border-b border-transparent hover:border-slate-300 focus:border-purple-500 outline-none py-1 text-sm font-bold text-purple-600 bg-transparent transition-colors"
                             value={globalSettings.accuracyMaxPoints || 100}
                             onChange={e => onSettingsUpdate('accuracyMaxPoints', Number(e.target.value))}
                         />
                         <p className="text-[10px] text-slate-400 mt-1">Points awarded for 100% accuracy</p>
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 block mb-1">Min Threshold (%)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Min Threshold (%)</label>
                         <input
                             type="number"
-                            className="w-full border rounded p-2 text-sm font-bold"
+                            className="w-full border-b border-transparent hover:border-slate-300 focus:border-purple-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
                             value={globalSettings.minAccuracyThreshold || 50}
                             onChange={e => onSettingsUpdate('minAccuracyThreshold', Number(e.target.value))}
                         />
@@ -518,24 +516,24 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                                     </div>
                                 </div>
                             ) : (
-                                // View Mode
-                                <div className="flex items-center justify-between p-3 border rounded-lg bg-slate-50 hover:bg-white hover:shadow-sm transition-all group">
+                                // View Mode - Updated to match SubscriptionTab style
+                                <div className="flex items-center justify-between p-4 border rounded-lg bg-white hover:border-indigo-200 transition-all group">
                                     <div>
                                         <div className="font-bold text-sm text-slate-800 flex items-center gap-2">
                                             {rule.name}
                                             {rule.triggerType === 'ACCURACY' && (
-                                                <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 rounded uppercase">Accuracy</span>
+                                                <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded uppercase font-bold tracking-wide">Accuracy</span>
                                             )}
                                         </div>
-                                        <div className="text-xs text-slate-500">
-                                            If {rule.triggerType} {rule.conditionOperator} {rule.conditionValue} → {rule.effectType} {rule.points} pts
+                                        <div className="text-xs text-slate-500 mt-1">
+                                            If <span className="font-mono bg-slate-100 px-1 rounded text-slate-700">{rule.triggerType}</span> {rule.conditionOperator} <span className="font-mono bg-slate-100 px-1 rounded text-slate-700">{rule.conditionValue}</span> → <span className={`font-bold ${rule.effectType === 'REWARD' ? 'text-emerald-600' : 'text-rose-600'}`}>{rule.effectType === 'REWARD' ? '+' : '-'}{rule.points} pts</span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => startEditing(rule)} className="text-slate-400 hover:text-indigo-600 p-1.5 hover:bg-indigo-50 rounded">
+                                    <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => startEditing(rule)} className="text-slate-300 hover:text-indigo-600 p-2 hover:bg-indigo-50 rounded-full transition-colors">
                                             <Edit2 className="w-4 h-4" />
                                         </button>
-                                        <button onClick={() => onDeleteReward(rule.id)} className="text-slate-400 hover:text-rose-500 p-1.5 hover:bg-rose-50 rounded">
+                                        <button onClick={() => onDeleteReward(rule.id)} className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-colors">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -550,50 +548,59 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
 
                 {/* Add New Rule Form */}
                 {!editingId && (
-                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                        <h5 className="text-xs font-bold text-indigo-600 mb-2">Add New Rule</h5>
-                        <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="p-4 bg-slate-50/50 rounded-lg border border-dashed border-slate-300 mt-4">
+                        <h5 className="text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-2">
+                            <Plus className="w-3 h-3" />
+                            Add New Reward Rule
+                        </h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                             <input
-                                className="border rounded p-1.5 text-xs"
-                                placeholder="Rule Name"
+                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Rule Name (e.g. Master Streak)"
                                 value={newReward.name}
                                 onChange={e => setNewReward({ ...newReward, name: e.target.value })}
                             />
                             <input
-                                className="border rounded p-1.5 text-xs"
-                                placeholder="Message (e.g. 'Bonus!')"
+                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Message to student (e.g. 'Incredible Streak!')"
                                 value={newReward.message}
                                 onChange={e => setNewReward({ ...newReward, message: e.target.value })}
                             />
                         </div>
-                        <div className="grid grid-cols-3 gap-2 mb-2">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                             <select
-                                className="border rounded p-1.5 text-xs"
+                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                                 value={newReward.triggerType}
                                 onChange={e => handleTriggerChange(e.target.value, true)}
                             >
-                                <option value="SCORE">Score</option>
-                                <option value="STREAK">Streak</option>
-                                <option value="DIFFICULTY">Difficulty</option>
-                                <option value="ACCURACY">Accuracy</option>
+                                <option value="SCORE">Trigger: Score</option>
+                                <option value="STREAK">Trigger: Streak</option>
+                                <option value="DIFFICULTY">Trigger: Difficulty</option>
+                                <option value="ACCURACY">Trigger: Accuracy</option>
                             </select>
                             <select
-                                className="border rounded p-1.5 text-xs"
+                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                                 value={newReward.effectType}
                                 onChange={e => setNewReward({ ...newReward, effectType: e.target.value as any })}
                             >
-                                <option value="REWARD">Reward (+)</option>
-                                <option value="PENALTY">Penalty (-)</option>
+                                <option value="REWARD">Effect: Give Reward (+)</option>
+                                <option value="PENALTY">Effect: Penalty (-)</option>
                             </select>
                             <input
-                                className="border rounded p-1.5 text-xs"
+                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
                                 type="number"
-                                placeholder="Points"
+                                placeholder="Points Amount"
                                 value={newReward.points}
                                 onChange={e => setNewReward({ ...newReward, points: Number(e.target.value) })}
                             />
                         </div>
-                        <Button size="sm" onClick={handleAddReward} disabled={!newReward.name || !newReward.message}>
+                        <Button
+                            size="sm"
+                            onClick={handleAddReward}
+                            disabled={!newReward.name || !newReward.message}
+                            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                            <Plus className="w-3 h-3 mr-1" />
                             Add Rule
                         </Button>
                     </div>

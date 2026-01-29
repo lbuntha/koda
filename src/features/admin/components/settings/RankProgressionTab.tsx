@@ -26,15 +26,15 @@ export const RankProgressionTab: React.FC<RankProgressionTabProps> = ({
 
             <div className="space-y-4">
                 {skillRanks.map((rank, idx) => (
-                    <div key={idx} className="flex gap-4 items-center p-3 border rounded-lg hover:border-indigo-200 transition-colors">
-                        <div className="text-2xl bg-slate-50 w-12 h-12 flex items-center justify-center rounded-lg border border-slate-100">
+                    <div key={idx} className="flex gap-4 items-center p-4 border rounded-lg hover:border-purple-200 transition-colors bg-white">
+                        <div className="text-2xl bg-slate-50 w-12 h-12 flex items-center justify-center rounded-lg border border-slate-100 shrink-0">
                             {rank.icon}
                         </div>
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
                                 <label className="text-[10px] font-bold text-slate-400 uppercase">Rank Name</label>
                                 <input
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none text-sm font-semibold"
+                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-purple-500 outline-none text-sm font-semibold"
                                     value={rank.name}
                                     onChange={e => onRankUpdate(idx, 'name', e.target.value)}
                                 />
@@ -43,7 +43,7 @@ export const RankProgressionTab: React.FC<RankProgressionTabProps> = ({
                                 <label className="text-[10px] font-bold text-slate-400 uppercase">XP Threshold</label>
                                 <input
                                     type="number"
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none text-sm font-mono"
+                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-purple-500 outline-none text-sm font-mono"
                                     value={rank.threshold}
                                     onChange={e => onRankUpdate(idx, 'threshold', Number(e.target.value))}
                                 />
@@ -51,7 +51,7 @@ export const RankProgressionTab: React.FC<RankProgressionTabProps> = ({
                             <div>
                                 <label className="text-[10px] font-bold text-slate-400 uppercase">Icon (Emoji)</label>
                                 <input
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none text-sm"
+                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-purple-500 outline-none text-sm"
                                     value={rank.icon}
                                     onChange={e => onRankUpdate(idx, 'icon', e.target.value)}
                                 />
@@ -59,7 +59,7 @@ export const RankProgressionTab: React.FC<RankProgressionTabProps> = ({
                             <div>
                                 <label className="text-[10px] font-bold text-slate-400 uppercase">Description</label>
                                 <input
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none text-sm text-slate-500"
+                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-purple-500 outline-none text-sm text-slate-500"
                                     value={rank.description}
                                     onChange={e => onRankUpdate(idx, 'description', e.target.value)}
                                 />
@@ -75,7 +75,11 @@ export const RankProgressionTab: React.FC<RankProgressionTabProps> = ({
                     </div>
                 ))}
 
-                <Button variant="outline" onClick={onAddRank} className="w-full border-dashed">
+                <Button
+                    variant="outline"
+                    onClick={onAddRank}
+                    className="w-full border-dashed text-purple-600 border-purple-200 hover:bg-purple-50"
+                >
                     <Plus className="w-4 h-4 mr-2" /> Add New Rank Tier
                 </Button>
             </div>

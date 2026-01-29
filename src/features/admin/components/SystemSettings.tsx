@@ -11,6 +11,7 @@ import {
 } from '@stores';
 import { RewardRule, SkillRank } from '@types';
 import { ConfirmationModal } from '@shared/components/ui';
+import { useToast } from '@shared/context';
 import {
     PlatformConfigTab,
     SubscriptionTab,
@@ -36,6 +37,7 @@ export const SystemSettings: React.FC = () => {
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
     const [skillRanks, setSkillRanks] = useState<SkillRank[]>([]);
     const [rewards, setRewards] = useState<RewardRule[]>([]);
+    const toast = useToast();
 
     // Confirmation State
     const [confirmState, setConfirmState] = useState<{
@@ -117,7 +119,7 @@ export const SystemSettings: React.FC = () => {
 
     const handleDeleteRank = (index: number) => {
         if (skillRanks.length <= 1) {
-            alert("At least one rank is required.");
+            toast.error("Cannot Delete Rank", "At least one rank is required.");
             return;
         }
         openConfirm(

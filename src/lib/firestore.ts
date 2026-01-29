@@ -18,7 +18,7 @@ import { db, isFirebaseConfigured } from './config';
 
 // Generic Firestore operations with localStorage fallback
 
-type CollectionName = 'skills' | 'users' | 'results' | 'rewards' | 'goals' | 'settings' | 'menuItems' | 'menuPermissions' | 'token_logs';
+type CollectionName = 'skills' | 'users' | 'results' | 'rewards' | 'goals' | 'settings' | 'menuItems' | 'menuPermissions' | 'token_logs' | 'component_definitions';
 
 const STORAGE_PREFIX = 'edu_';
 

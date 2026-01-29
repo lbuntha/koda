@@ -17,8 +17,8 @@ interface AIGeneratorProps {
 
 export const AIGenerator: React.FC<AIGeneratorProps> = ({ systemConfig, onGenerateSuccess, onLoadingChange, userId }) => {
     const toast = useToast();
-    const [grade, setGrade] = useState('Grade 1');
-    const [subject, setSubject] = useState('Math');
+    const [grade, setGrade] = useState(systemConfig.grades[0]?.id || 'Grade 1');
+    const [subject, setSubject] = useState(systemConfig.subjects[0] || 'Math');
     const [topic, setTopic] = useState('');
     const [sectionInput, setSectionInput] = useState('');
     const [skillCount, setSkillCount] = useState<number>(1);
@@ -104,7 +104,7 @@ export const AIGenerator: React.FC<AIGeneratorProps> = ({ systemConfig, onGenera
                             className="w-full rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-950 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all p-3 text-sm font-medium"
                         >
                             {systemConfig.grades.map(g => (
-                                <option key={g} value={g}>{g}</option>
+                                <option key={g.id} value={g.id}>{g.label || g.id}</option>
                             ))}
                         </select>
                     </div>

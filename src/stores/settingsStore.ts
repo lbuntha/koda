@@ -98,9 +98,10 @@ export interface SubjectConfig {
 }
 
 export interface SystemConfig {
-    grades: string[];
+    grades: GradeConfig[];
     subjects: string[]; // Keep for backward compatibility
-    subjectConfigs?: SubjectConfig[]; // New: rich subject configuration
+    subjectConfigs?: SubjectConfig[];
+    // gradeDefinitions removed - merged into grades
     minQuestionsPerQuiz: number;
     maxQuestionsPerQuiz: number;
     questionsToMasterSkill: number;
@@ -144,11 +145,80 @@ export const DEFAULT_SUBJECT_CONFIGS: SubjectConfig[] = [
     { name: 'History', icon: 'Landmark', color: 'orange' },
     { name: 'Geography', icon: 'Globe', color: 'sky' },
     { name: 'Computer Science', icon: 'Code', color: 'purple' },
+    { name: 'Language Arts', icon: 'PenLine', color: 'rose' },
+    { name: 'Social Studies', icon: 'Landmark', color: 'orange' },
+];
+
+export interface GradeConfig {
+    id: string;
+    label: string;
+    shortLabel: string;
+    description: string;
+    color: string;
+    category?: string; // e.g. "Early Childhood", "Elementary"
+    subjects: string[];
+}
+
+export const DEFAULT_GRADE_DEFINITIONS: GradeConfig[] = [
+    {
+        id: 'Pre-K',
+        label: 'Pre-K',
+        shortLabel: 'P',
+        description: 'Foundations of counting and letter names.',
+        color: 'cyan',
+        category: 'Early Childhood',
+        subjects: ['Math', 'Language Arts']
+    },
+    {
+        id: 'Kindergarten',
+        label: 'Kindergarten',
+        shortLabel: 'K',
+        description: 'Shapes, sounds, plants, communities.',
+        color: 'orange',
+        category: 'Early Childhood',
+        subjects: ['Math', 'Language Arts', 'Science', 'Social Studies']
+    },
+    {
+        id: 'Grade 1',
+        label: 'First Grade',
+        shortLabel: '1',
+        description: 'Addition, vowels, light, sound, rules.',
+        color: 'emerald',
+        category: 'Elementary',
+        subjects: ['Math', 'Language Arts', 'Science', 'Social Studies']
+    },
+    {
+        id: 'Grade 2',
+        label: 'Second Grade',
+        shortLabel: '2',
+        description: 'Place-value, plurals, history figures.',
+        color: 'rose',
+        category: 'Elementary',
+        subjects: ['Math', 'Language Arts', 'Science', 'Social Studies']
+    },
+    {
+        id: 'Grade 3',
+        label: 'Third Grade',
+        shortLabel: '3',
+        description: 'Multiplication, graphs, weather, geography.',
+        color: 'sky',
+        category: 'Elementary',
+        subjects: ['Math', 'Language Arts', 'Science', 'Social Studies']
+    },
+    {
+        id: 'Grade 4',
+        label: 'Fourth Grade',
+        shortLabel: '4',
+        description: 'Fractions, government, rock layers.',
+        color: 'purple',
+        category: 'Elementary',
+        subjects: ['Math', 'Language Arts', 'Science', 'Social Studies']
+    }
 ];
 
 export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
-    grades: ['Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6'],
-    subjects: ['Math', 'Science', 'English', 'History', 'Geography', 'Computer Science'],
+    grades: DEFAULT_GRADE_DEFINITIONS,
+    subjects: ['Math', 'Science', 'English', 'History', 'Geography', 'Computer Science', 'Language Arts', 'Social Studies'],
     subjectConfigs: DEFAULT_SUBJECT_CONFIGS,
     minQuestionsPerQuiz: 3,
     maxQuestionsPerQuiz: 20,
@@ -182,12 +252,37 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
 };
 
 export const getSystemConfig = async (): Promise<SystemConfig> => {
-    const doc = await getById<SettingsDoc<SystemConfig>>(COLLECTION, 'system_config');
+    const doc = await getById<SettingsDoc<any>>(COLLECTION, 'system_config'); // Use any to handle migration
     if (!doc) {
         await saveSystemConfig(DEFAULT_SYSTEM_CONFIG);
         return DEFAULT_SYSTEM_CONFIG;
     }
-    return doc.data;
+
+    const data = doc.data;
+
+    // Migration: If grades is array of strings, map to objects
+    if (Array.isArray(data.grades) && typeof data.grades[0] === 'string') {
+        const stringGrades = data.grades as unknown as string[];
+        data.grades = stringGrades.map(g => {
+            // Try to find default config for this grade ID
+            const def = DEFAULT_GRADE_DEFINITIONS.find(d => d.id === g);
+            if (def) return def;
+
+            // Fallback for unknown grade strings
+            return {
+                id: g,
+                label: g,
+                shortLabel: g.charAt(0).toUpperCase(),
+                description: '',
+                color: 'slate',
+                category: 'Other',
+                subjects: DEFAULT_SUBJECT_CONFIGS.map(s => s.name)
+            };
+        });
+    }
+
+    // Merge with defaults to ensure all fields exist
+    return { ...DEFAULT_SYSTEM_CONFIG, ...data };
 };
 
 export const saveSystemConfig = async (config: SystemConfig): Promise<void> => {
@@ -196,14 +291,50 @@ export const saveSystemConfig = async (config: SystemConfig): Promise<void> => {
 
 export const addSystemOption = async (type: 'grades' | 'subjects', value: string): Promise<void> => {
     const config = await getSystemConfig();
-    if (!config[type].includes(value)) {
-        config[type].push(value);
-        await saveSystemConfig(config);
+    if (!config[type].find((item: any) => typeof item === 'string' ? item === value : item.id === value)) {
+        // This helper is getting tricky with mixed types. 
+        // For now, if adding a grade via this legacy helper, we might need a full object.
+        // But this tool call suggests simple string addition.
+        // We'll skip implementation update for addSystemOption/removeSystemOption for grades for now 
+        // as they are likely used by older admin panels.
+        // Ideally we refactor those too, but let's stick to the type fix first.
+        if (type === 'subjects') {
+            config.subjects.push(value);
+            // Ensure subjectConfigs exists
+            if (!config.subjectConfigs) config.subjectConfigs = [];
+            // Add default config if not exists
+            if (!config.subjectConfigs.find(c => c.name === value)) {
+                config.subjectConfigs.push({
+                    name: value,
+                    icon: 'BookOpen',
+                    color: DEFAULT_SUBJECT_CONFIGS[config.subjectConfigs.length % DEFAULT_SUBJECT_CONFIGS.length].color
+                });
+            }
+            await saveSystemConfig(config);
+        } else if (type === 'grades') {
+            // Create a default grade config
+            const newGrade: GradeConfig = {
+                id: value,
+                label: value,
+                shortLabel: value.charAt(0).toUpperCase(), // specific logic for short label could be improved later
+                description: '',
+                color: 'slate',
+                category: 'Other',
+                subjects: DEFAULT_SUBJECT_CONFIGS.map(s => s.name)
+            };
+            config.grades.push(newGrade);
+            await saveSystemConfig(config);
+        }
     }
 };
 
 export const removeSystemOption = async (type: 'grades' | 'subjects', value: string): Promise<void> => {
     const config = await getSystemConfig();
-    config[type] = config[type].filter(item => item !== value);
-    await saveSystemConfig(config);
+    if (type === 'subjects') {
+        config.subjects = config.subjects.filter(item => item !== value);
+        await saveSystemConfig(config);
+    } else if (type === 'grades') {
+        config.grades = config.grades.filter(g => g.id !== value);
+        await saveSystemConfig(config);
+    }
 };

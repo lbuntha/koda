@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
-import { QuestionTypeDef } from '@services/questionTypeRegistry';
+import { QuestionTypeDef, REGISTERED_QUESTION_TYPES } from '@services/questionTypeRegistry';
 import { getAllComponents, saveComponentDef, deleteComponentDef } from '@stores/componentStore';
-import { Button, Card, Badge } from '@shared/components/ui';
+import { Button, Card, Badge, ConfirmationModal } from '@shared/components/ui';
 import { Plus, Edit, Trash2, Box, RefreshCw } from 'lucide-react';
+import { useToast } from '@shared/context/ToastContext';
 import { ComponentEditor } from './ComponentEditor';
 
 export const ComponentManager: React.FC = () => {
@@ -11,6 +11,10 @@ export const ComponentManager: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState<'LIST' | 'EDITOR'>('LIST');
     const [editingDef, setEditingDef] = useState<Partial<QuestionTypeDef> | undefined>(undefined);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const toast = useToast();
 
     const loadData = async () => {
         setLoading(true);
@@ -44,14 +48,18 @@ export const ComponentManager: React.FC = () => {
         setView('LIST');
     };
 
-    const handleDelete = async (id: string) => {
-        if (confirm(`Are you sure you want to delete component "${id}"?`)) {
-            try {
-                await deleteComponentDef(id);
-                await loadData();
-            } catch (e: any) {
-                alert(e.message);
-            }
+    const handleConfirmDelete = async () => {
+        if (!deletingId) return;
+        setIsDeleting(true);
+        try {
+            await deleteComponentDef(deletingId);
+            await loadData();
+            toast.success("Component Deleted", `Successfully deleted ${deletingId}`);
+        } catch (e: any) {
+            toast.error("Delete Failed", e.message);
+        } finally {
+            setIsDeleting(false);
+            setDeletingId(null);
         }
     };
 
@@ -67,6 +75,16 @@ export const ComponentManager: React.FC = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in">
+            <ConfirmationModal
+                isOpen={!!deletingId}
+                title="Delete Component?"
+                message={`Are you sure you want to delete component "${deletingId}"? This cannot be undone.`}
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeletingId(null)}
+                confirmLabel="Delete"
+                isDanger={true}
+                isLoading={isDeleting}
+            />
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -87,7 +105,8 @@ export const ComponentManager: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {components.map(comp => {
-                    const isSystem = ['vertical-math', 'visual-counter', 'multiple-choice', 'fill-blank'].includes(comp.id); // Simple check, or use logic from store
+                    // Check if system default by matching IDs with registry
+                    const isSystem = REGISTERED_QUESTION_TYPES.some(sys => sys.id === comp.id);
 
                     return (
                         <Card key={comp.id} className="relative group bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 flex flex-col h-full">
@@ -115,7 +134,7 @@ export const ComponentManager: React.FC = () => {
                                     </button>
                                     {!isSystem && (
                                         <button
-                                            onClick={() => handleDelete(comp.id)}
+                                            onClick={() => setDeletingId(comp.id)}
                                             className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded transition-colors"
                                             title="Delete"
                                         >

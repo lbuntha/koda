@@ -1,0 +1,5 @@
+{
+  "name": "GeminiEdu Architect",
+  "description": "A role-based educational platform where teachers generate AI curricula, students learn via adaptive quizzes, and parents track analytics.",
+  "requestFramePermissions": []
+}

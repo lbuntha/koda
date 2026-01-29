@@ -1,0 +1,88 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@features/*": [
+        "./src/features/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@stores/*": [
+        "./src/stores/*"
+      ],
+      "@types/*": [
+        "./src/types/*"
+      ],
+      "@theme/*": [
+        "./src/theme/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@services": [
+        "./src/services"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@auth/*": [
+        "./src/features/auth/*"
+      ],
+      "@auth": [
+        "./src/features/auth"
+      ],
+      "@": [
+        "./src"
+      ],
+      "@features": [
+        "./src/features"
+      ],
+      "@shared": [
+        "./src/shared"
+      ],
+      "@stores": [
+        "./src/stores"
+      ],
+      "@types": [
+        "./src/types"
+      ],
+      "@theme": [
+        "./src/theme"
+      ],
+      "@lib": [
+        "./src/lib"
+      ]
+    },
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*",
+    "*.tsx",
+    "*.ts",
+    "components/**/*",
+    "services/**/*"
+  ]
+}

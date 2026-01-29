@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Koda - Learn & Grow | Tech Education for Ages 6-18</title>
+  <meta name="description"
+    content="Koda is an AI-powered tech education platform where students learn coding, robotics, and digital skills through gamified adventures. Perfect for ages 6-18." />
+  <meta name="theme-color" content="#6366f1" />
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Koda" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="Koda" />
+  <meta name="msapplication-TileColor" content="#6366f1" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              950: '#020617', // Ensure slate-950 is available
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Outfit font - friendly and modern for all ages -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Cosmic Explorer - Light Mode Colors */
+      --color-primary: #6366f1;
+      --color-primary-hover: #4f46e5;
+      --color-secondary: #06b6d4;
+      --color-accent: #a855f7;
+      --color-background: #f0f9ff;
+      --color-card: #ffffff;
+      --color-foreground: #0f172a;
+      --color-border: #e0e7ff;
+      --color-muted: #f1f5f9;
+
+      /* Gamification colors */
+      --color-xp: #f59e0b;
+      --color-xp-glow: rgba(245, 158, 11, 0.4);
+      --color-streak: #f97316;
+      --color-streak-glow: rgba(249, 115, 22, 0.4);
+      --color-success: #10b981;
+      --color-destructive: #ef4444;
+    }
+
+    html.dark {
+      /* Cosmic Explorer - Dark Mode Colors */
+      --color-primary: #818cf8;
+      --color-primary-hover: #a5b4fc;
+      --color-secondary: #22d3ee;
+      --color-accent: #c084fc;
+      --color-background: #0c1222;
+      --color-card: #1a2234;
+      --color-foreground: #f8fafc;
+      --color-border: #2d3a50;
+      --color-muted: #1e293b;
+
+      /* Gamification colors - brighter in dark mode */
+      --color-xp: #fbbf24;
+      --color-xp-glow: rgba(251, 191, 36, 0.5);
+      --color-streak: #fb923c;
+      --color-streak-glow: rgba(251, 146, 60, 0.5);
+      --color-success: #34d399;
+      --color-destructive: #f87171;
+
+      color-scheme: dark;
+    }
+
+    * {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--color-background);
+      color: var(--color-foreground);
+    }
+
+    /* Gradient backgrounds */
+    .bg-gradient-cosmic {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    }
+
+    .bg-gradient-tech {
+      background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    }
+
+    .bg-gradient-xp {
+      background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    }
+
+    /* Glassmorphism effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    html.dark .glass {
+      background: rgba(26, 34, 52, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Glow effects */
+    .glow-xp {
+      box-shadow: 0 0 20px var(--color-xp-glow), 0 0 40px var(--color-xp-glow);
+    }
+
+    .glow-streak {
+      box-shadow: 0 0 15px var(--color-streak-glow), 0 0 30px var(--color-streak-glow);
+    }
+
+    .glow-primary {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+
+    html.dark .glow-primary {
+      box-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+    }
+
+    /* Animation keyframes */
+    @keyframes glow-pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 5px var(--color-xp-glow);
+      }
+
+      50% {
+        box-shadow: 0 0 20px var(--color-xp-glow), 0 0 35px var(--color-xp-glow);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    @keyframes streak-fire {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+        filter: brightness(1.2);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    @keyframes bounce-in {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+
+      50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+      }
+
+      70% {
+        transform: scale(0.9);
+        opacity: 0.9;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slide-up {
+      0% {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .animate-glow-pulse {
+      animation: glow-pulse 2s ease-in-out infinite;
+    }
+
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .animate-streak-fire {
+      animation: streak-fire 0.6s ease-in-out infinite;
+    }
+
+    .animate-bounce-in {
+      animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .animate-slide-up {
+      animation: slide-up 0.4s ease-out;
+    }
+
+    @keyframes slide-in {
+      0% {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .animate-slide-in {
+      animation: slide-in 0.3s ease-out;
+    }
+
+    /* Shimmer effect for loading/skeleton */
+    .shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* Custom scrollbar - Cosmic theme */
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 8px;
+      width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: var(--color-muted);
+      border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: var(--color-primary);
+    }
+
+    /* Smooth transitions for theme changes */
+    * {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Safe area for mobile PWA */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 0);
+    }
+  </style>
+  <script>
+      // Initialize theme before render to prevent flash
+      (function() {
+        const stored = localStorage.getItem('edu_theme_mode');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored === 'dark' || (stored === 'system' && prefersDark) || (!stored && prefersDark) ? 'dark' : 'light';
+        document.documentElement.classList.add(theme);
+      })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/app/main.tsx"></script>
+</body>
+
+</html>

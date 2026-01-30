@@ -45,48 +45,48 @@ export const SubscriptionTab: React.FC<SubscriptionTabProps> = ({
 
             <div className="space-y-4">
                 {(config.subscriptionTiers || []).map((tier, idx) => (
-                    <div key={tier.id} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-4 border rounded-lg hover:border-emerald-200 transition-colors bg-white">
+                    <div key={tier.id} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-4 border rounded-lg hover:border-emerald-200 transition-colors bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                         <div className="flex-1 grid grid-cols-2 lg:grid-cols-5 gap-4 w-full">
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Plan Name</label>
+                                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Plan Name</label>
                                 <input
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-emerald-500 outline-none text-sm font-semibold"
+                                    className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-emerald-500 outline-none text-sm font-semibold bg-transparent dark:text-slate-200"
                                     value={tier.name}
                                     onChange={e => handleTierUpdate(idx, 'name', e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Price ($)</label>
+                                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Price ($)</label>
                                 <input
                                     type="number"
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-emerald-500 outline-none text-sm font-mono text-emerald-600 font-bold"
+                                    className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-emerald-500 outline-none text-sm font-mono text-emerald-600 dark:text-emerald-400 font-bold bg-transparent"
                                     value={tier.price}
                                     onChange={e => handleTierUpdate(idx, 'price', Number(e.target.value))}
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Token Quota</label>
+                                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Token Quota</label>
                                 <input
                                     type="number"
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-emerald-500 outline-none text-sm font-mono"
+                                    className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-emerald-500 outline-none text-sm font-mono bg-transparent dark:text-slate-200"
                                     value={tier.tokenQuota}
                                     onChange={e => handleTierUpdate(idx, 'tokenQuota', Number(e.target.value))}
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Max Request Tokens</label>
+                                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Max Request Tokens</label>
                                 <input
                                     type="number"
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-emerald-500 outline-none text-sm font-mono"
+                                    className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-emerald-500 outline-none text-sm font-mono bg-transparent dark:text-slate-200"
                                     value={tier.maxRequestTokens}
                                     onChange={e => handleTierUpdate(idx, 'maxRequestTokens', Number(e.target.value))}
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Max Kids</label>
+                                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Max Kids</label>
                                 <input
                                     type="number"
-                                    className="w-full border-b border-transparent hover:border-slate-300 focus:border-emerald-500 outline-none text-sm font-mono"
+                                    className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-emerald-500 outline-none text-sm font-mono bg-transparent dark:text-slate-200"
                                     value={tier.maxChildren || 1}
                                     onChange={e => handleTierUpdate(idx, 'maxChildren', Number(e.target.value))}
                                 />

@@ -21,14 +21,14 @@ const GamificationSpecs: React.FC<{ globalSettings: GlobalSettings }> = ({ globa
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
-        <div className="mb-6 border rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50">
+        <div className="mb-6 border rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-amber-900/50">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="w-full flex items-center justify-between p-4 hover:bg-amber-100/50 transition-colors"
             >
                 <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-amber-600" />
-                    <span className="font-bold text-slate-800">How Gamification Works</span>
+                    <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-500" />
+                    <span className="font-bold text-slate-800 dark:text-slate-200">How Gamification Works</span>
                 </div>
                 {isExpanded ? (
                     <ChevronUp className="w-5 h-5 text-slate-500" />
@@ -40,20 +40,20 @@ const GamificationSpecs: React.FC<{ globalSettings: GlobalSettings }> = ({ globa
             {isExpanded && (
                 <div className="p-4 pt-0 space-y-4">
                     {/* Overview */}
-                    <div className="bg-white rounded-lg p-4 border border-amber-100">
-                        <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-amber-100 dark:border-amber-900/30">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-2 flex items-center gap-2">
                             <Trophy className="w-4 h-4 text-amber-500" />
                             Overview
                         </h4>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
                             The gamification system rewards students with <strong>XP (Experience Points)</strong> for completing quizzes,
                             drawing tasks, and achieving learning milestones. Points accumulate to unlock ranks, badges, and rewards.
                         </p>
                     </div>
 
                     {/* Point Calculation */}
-                    <div className="bg-white rounded-lg p-4 border border-amber-100">
-                        <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-amber-100 dark:border-amber-900/30">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
                             <Star className="w-4 h-4 text-amber-500" />
                             Point Calculation Formula
                         </h4>
@@ -76,32 +76,32 @@ const GamificationSpecs: React.FC<{ globalSettings: GlobalSettings }> = ({ globa
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
+                            <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                                 <Target className="w-5 h-5 text-amber-600 mt-0.5" />
                                 <div>
-                                    <div className="font-semibold text-sm text-slate-800">Base Points</div>
-                                    <div className="text-xs text-slate-600">
-                                        <span className="font-mono bg-amber-100 px-1 rounded">{globalSettings.baseMasteryPoints} pts</span> awarded
+                                    <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">Base Points</div>
+                                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                                        <span className="font-mono bg-amber-100 dark:bg-amber-900/40 px-1 rounded dark:text-amber-200">{globalSettings.baseMasteryPoints} pts</span> awarded
                                         for each correct answer
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3 p-3 bg-cyan-50 rounded-lg">
+                            <div className="flex items-start gap-3 p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
                                 <Clock className="w-5 h-5 text-cyan-600 mt-0.5" />
                                 <div>
-                                    <div className="font-semibold text-sm text-slate-800">Speed Bonus</div>
-                                    <div className="text-xs text-slate-600">
-                                        <span className="font-mono bg-cyan-100 px-1 rounded">+{globalSettings.speedBonusFast} pts</span> for
+                                    <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">Speed Bonus</div>
+                                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                                        <span className="font-mono bg-cyan-100 dark:bg-cyan-900/40 px-1 rounded dark:text-cyan-200">+{globalSettings.speedBonusFast} pts</span> for
                                         answering quickly (under 10 seconds)
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
+                            <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                                 <Target className="w-5 h-5 text-purple-600 mt-0.5" />
                                 <div>
-                                    <div className="font-semibold text-sm text-slate-800">Accuracy Score</div>
-                                    <div className="text-xs text-slate-600">
-                                        Up to <span className="font-mono bg-purple-100 px-1 rounded">{globalSettings.accuracyMaxPoints} pts</span> based
+                                    <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">Accuracy Score</div>
+                                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                                        Up to <span className="font-mono bg-purple-100 dark:bg-purple-900/40 px-1 rounded dark:text-purple-200">{globalSettings.accuracyMaxPoints} pts</span> based
                                         on percentage accuracy (e.g. drawing similarity)
                                     </div>
                                 </div>
@@ -110,14 +110,14 @@ const GamificationSpecs: React.FC<{ globalSettings: GlobalSettings }> = ({ globa
                     </div>
 
                     {/* Example Scenarios */}
-                    <div className="bg-white rounded-lg p-4 border border-amber-100">
-                        <h4 className="font-bold text-slate-800 mb-3">📊 Example Scenarios</h4>
+                    <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-amber-100 dark:border-amber-900/30">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-3">📊 Example Scenarios</h4>
 
                         <div className="space-y-4">
                             {/* Example 1: Quiz Mode */}
-                            <div className="bg-slate-50 rounded-lg p-3">
-                                <h5 className="font-bold text-slate-700 text-xs uppercase mb-2">Example 1: The Quiz Whiz (Standard Mode)</h5>
-                                <p className="text-xs text-slate-600 mb-3">
+                            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                                <h5 className="font-bold text-slate-700 dark:text-slate-300 text-xs uppercase mb-2">Example 1: The Quiz Whiz (Standard Mode)</h5>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
                                     A student answers <strong>3 questions correctly in a row</strong>, all within 10 seconds (Speed Bonus).
                                 </p>
                                 <table className="w-full text-xs">
@@ -157,9 +157,9 @@ const GamificationSpecs: React.FC<{ globalSettings: GlobalSettings }> = ({ globa
                             </div>
 
                             {/* Example 2: Accuracy Mode */}
-                            <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-100">
-                                <h5 className="font-bold text-indigo-800 text-xs uppercase mb-2">Example 2: The Digital Artist (Accuracy Mode)</h5>
-                                <p className="text-xs text-slate-600 mb-3">
+                            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3 border border-indigo-100 dark:border-indigo-900/30">
+                                <h5 className="font-bold text-indigo-800 dark:text-indigo-300 text-xs uppercase mb-2">Example 2: The Digital Artist (Accuracy Mode)</h5>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
                                     Student draws a shape with <strong>95% accuracy</strong> (Threshold: {globalSettings.minAccuracyThreshold}%).
                                 </p>
 
@@ -296,28 +296,28 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         {/* Type Selector */}
                         <div>
-                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Criteria Type</label>
+                            <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-1">Criteria Type</label>
                             <select
-                                className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-semibold bg-transparent transition-colors cursor-pointer"
+                                className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-indigo-500 outline-none py-1 text-sm font-semibold bg-transparent dark:text-slate-200 transition-colors cursor-pointer"
                                 value={config.defaultMasteryRequirements?.type || 'QUESTIONS'}
                                 onChange={e => onConfigUpdate('defaultMasteryRequirements', {
                                     ...config.defaultMasteryRequirements,
                                     type: e.target.value as any
                                 })}
                             >
-                                <option value="QUESTIONS">Questions Answered</option>
-                                <option value="SCORE">Total Score (XP)</option>
+                                <option value="QUESTIONS" className="dark:bg-slate-800">Questions Answered</option>
+                                <option value="SCORE" className="dark:bg-slate-800">Total Score (XP)</option>
                             </select>
                         </div>
 
                         {/* Target Value */}
                         <div>
-                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                            <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-1">
                                 {config.defaultMasteryRequirements?.type === 'QUESTIONS' ? 'Target # Questions' : 'Target XP'}
                             </label>
                             <input
                                 type="number"
-                                className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
+                                className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent dark:text-slate-200 transition-colors"
                                 value={config.defaultMasteryRequirements?.value || 10}
                                 onChange={e => onConfigUpdate('defaultMasteryRequirements', {
                                     ...config.defaultMasteryRequirements,
@@ -328,10 +328,10 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
 
                         {/* Accuracy Gate */}
                         <div>
-                            <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Min Accuracy (%)</label>
+                            <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block mb-1">Min Accuracy (%)</label>
                             <input
                                 type="number"
-                                className="w-full border-b border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent transition-colors"
+                                className="w-full border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-indigo-500 outline-none py-1 text-sm font-bold bg-transparent dark:text-slate-200 transition-colors"
                                 value={config.defaultMasteryRequirements?.minAccuracy || 80}
                                 onChange={e => onConfigUpdate('defaultMasteryRequirements', {
                                     ...config.defaultMasteryRequirements,
@@ -342,7 +342,7 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
                         <div className="font-bold mb-1">Progression Logic:</div>
                         <ul className="list-disc pl-4 space-y-1">
                             {config.defaultMasteryRequirements?.type === 'QUESTIONS' ? (
@@ -517,16 +517,16 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                                 </div>
                             ) : (
                                 // View Mode - Updated to match SubscriptionTab style
-                                <div className="flex items-center justify-between p-4 border rounded-lg bg-white hover:border-indigo-200 transition-all group">
+                                <div className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-200 transition-all group">
                                     <div>
-                                        <div className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                                        <div className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
                                             {rule.name}
                                             {rule.triggerType === 'ACCURACY' && (
                                                 <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded uppercase font-bold tracking-wide">Accuracy</span>
                                             )}
                                         </div>
-                                        <div className="text-xs text-slate-500 mt-1">
-                                            If <span className="font-mono bg-slate-100 px-1 rounded text-slate-700">{rule.triggerType}</span> {rule.conditionOperator} <span className="font-mono bg-slate-100 px-1 rounded text-slate-700">{rule.conditionValue}</span> → <span className={`font-bold ${rule.effectType === 'REWARD' ? 'text-emerald-600' : 'text-rose-600'}`}>{rule.effectType === 'REWARD' ? '+' : '-'}{rule.points} pts</span>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                            If <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded text-slate-700 dark:text-slate-300">{rule.triggerType}</span> {rule.conditionOperator} <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded text-slate-700 dark:text-slate-300">{rule.conditionValue}</span> → <span className={`font-bold ${rule.effectType === 'REWARD' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>{rule.effectType === 'REWARD' ? '+' : '-'}{rule.points} pts</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
@@ -548,20 +548,20 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
 
                 {/* Add New Rule Form */}
                 {!editingId && (
-                    <div className="p-4 bg-slate-50/50 rounded-lg border border-dashed border-slate-300 mt-4">
-                        <h5 className="text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-2">
+                    <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 mt-4">
+                        <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-3 flex items-center gap-2">
                             <Plus className="w-3 h-3" />
                             Add New Reward Rule
                         </h5>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                             <input
-                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="Rule Name (e.g. Master Streak)"
                                 value={newReward.name}
                                 onChange={e => setNewReward({ ...newReward, name: e.target.value })}
                             />
                             <input
-                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="Message to student (e.g. 'Incredible Streak!')"
                                 value={newReward.message}
                                 onChange={e => setNewReward({ ...newReward, message: e.target.value })}
@@ -569,7 +569,7 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                             <select
-                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                                className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
                                 value={newReward.triggerType}
                                 onChange={e => handleTriggerChange(e.target.value, true)}
                             >
@@ -579,7 +579,7 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                                 <option value="ACCURACY">Trigger: Accuracy</option>
                             </select>
                             <select
-                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                                className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
                                 value={newReward.effectType}
                                 onChange={e => setNewReward({ ...newReward, effectType: e.target.value as any })}
                             >
@@ -587,7 +587,7 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                                 <option value="PENALTY">Effect: Penalty (-)</option>
                             </select>
                             <input
-                                className="border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
                                 type="number"
                                 placeholder="Points Amount"
                                 value={newReward.points}

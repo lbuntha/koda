@@ -295,10 +295,11 @@ export const generateQuestionForSkill = async (
       `;
     }
     if (skill.customLayoutId === 'visual-counter') {
-      layoutConstraints = `- STRICTLY match this format: "Count the [item]: [emojis]".
-      - You MUST include unicode emojis (e.g. 🍎, 🚗, ⭐) in the 'questionText'.
-      - Do NOT generate text-only math problems like "5 + 3".
-      - The User MUST see visuals to count.`;
+      layoutConstraints = `- You have TWO options for format:
+      1. VISUAL COUNTING: "Count the [item]: [emojis]" (e.g. "Count the apples: 🍎🍎🍎")
+      2. WORD PROBLEM: A short story problem (e.g. "John has 5 apples and eats 2. How many are left?").
+      - Do NOT generate simple math equations like "5 + 3" or "Which number is missing: 1, 2, _".
+      - Do NOT include 'options'. Users must type the answer using a keypad.`;
     }
 
     const config = await getSystemConfig();

@@ -1,5 +1,5 @@
 import { User, Role } from '@types';
-import { getAll, save, saveAll, remove, removeAll, isFirebaseConfigured } from '@lib/index';
+import { getAll, getById, save, saveAll, remove, removeAll, isFirebaseConfigured } from '@lib/index';
 
 const COLLECTION = 'users' as const;
 
@@ -109,8 +109,7 @@ export const addChildToParent = async (parentId: string, childUser: User): Promi
  * Get a single user by ID from Firebase
  */
 export const getUserById = async (id: string): Promise<User | null> => {
-    const users = await getUsers();
-    return users.find(u => u.id === id) || null;
+    return await getById<User>(COLLECTION, id);
 };
 
 /**

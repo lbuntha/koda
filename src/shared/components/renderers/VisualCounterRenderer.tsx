@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SkillRendererProps } from './DefaultRenderer';
 import { Delete } from 'lucide-react';
+import { RichText } from '@shared/components/ui/RichText';
 
 export const VisualCounterRenderer: React.FC<SkillRendererProps> = ({ question, onAnswer, isSubmitted, selectedAnswer }) => {
     const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
@@ -74,12 +75,15 @@ export const VisualCounterRenderer: React.FC<SkillRendererProps> = ({ question, 
             {/* Left Side: Visuals & Question */}
             <div className="flex flex-col h-full w-full md:flex-1 gap-4 min-h-0 relative">
                 {/* Header Area */}
-                <div className="flex flex-col items-center gap-1 z-10 shrink-0">
-                    <h2 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-400 text-center tracking-tight">
-                        {displayText}
-                    </h2>
-                    <div className="h-1 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
-                </div>
+                {/* Header Area - Hide if showing text in main box (Word Problem mode) */}
+                {emojis.length > 0 && (
+                    <div className="flex flex-col items-center gap-1 z-10 shrink-0">
+                        <h2 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-500 dark:from-slate-100 dark:to-slate-400 text-center tracking-tight">
+                            {displayText}
+                        </h2>
+                        <div className="h-1 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
+                    </div>
+                )}
 
                 {/* Visual Container */}
                 <div className="flex-1 w-full relative group">
@@ -112,7 +116,11 @@ export const VisualCounterRenderer: React.FC<SkillRendererProps> = ({ question, 
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-slate-400 dark:text-slate-600 font-medium italic">No visuals to display</div>
+                                <div className="text-left px-4 md:px-8 w-full">
+                                    <div className="text-xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 leading-relaxed font-fredoka">
+                                        <RichText text={displayText} />
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -133,48 +141,27 @@ export const VisualCounterRenderer: React.FC<SkillRendererProps> = ({ question, 
 
             {/* Right Side: Input / Keypad */}
             <div className="shrink-0 w-full md:w-auto min-w-[320px] flex flex-col justify-center items-center">
-                {question.options && question.options.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-3 w-full">
-                        {question.options.map((opt, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => !isSubmitted && onAnswer(opt)}
-                                disabled={isSubmitted}
-                                className={`
-                    h-20 rounded-2xl border-b-4 text-2xl font-bold transition-all
-                    ${isSubmitted && opt === question.correctAnswer ? 'bg-emerald-100 border-emerald-300 text-emerald-700' : ''}
-                    ${isSubmitted && opt === selectedAnswer && opt !== question.correctAnswer ? 'bg-rose-100 border-rose-300 text-rose-700' : ''}
-                    ${!isSubmitted && selectedAnswer === opt ? 'bg-indigo-100 border-indigo-300 text-indigo-700' : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:border-slate-300'}
-                    active:border-b-0 active:translate-y-1 active:mb-1
-                  `}
-                            >
-                                {opt}
-                            </button>
+                <div className="w-full max-w-[220px] md:max-w-sm flex flex-col items-center gap-3 md:gap-6">
+                    {/* Numpad Grid - Always visible for Visual Counter */}
+                    <div className="grid grid-cols-3 gap-2 md:gap-3 w-full px-1 md:px-2">
+                        {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
+                            <DigitButton key={num} digit={num.toString()} />
                         ))}
+
+                        {/* Empty Slot */}
+                        <div className="aspect-square" />
+
+                        <DigitButton digit="0" />
+
+                        <button
+                            onClick={handleBackspace}
+                            disabled={isSubmitted}
+                            className="aspect-square rounded-full flex items-center justify-center bg-rose-50 dark:bg-rose-900/20 border-b-4 border-rose-200 dark:border-rose-900/50 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/40 hover:border-rose-300 dark:hover:border-rose-800 active:border-b-0 active:translate-y-1 active:mb-1 transition-all w-12 h-12 md:w-full md:h-full"
+                        >
+                            <Delete className="w-6 h-6 md:w-8 md:h-8" />
+                        </button>
                     </div>
-                ) : (
-                    <div className="w-full max-w-[220px] md:max-w-sm flex flex-col items-center gap-3 md:gap-6">
-                        {/* Numpad Grid */}
-                        <div className="grid grid-cols-3 gap-2 md:gap-3 w-full px-1 md:px-2">
-                            {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
-                                <DigitButton key={num} digit={num.toString()} />
-                            ))}
-
-                            {/* Empty Slot */}
-                            <div className="aspect-square" />
-
-                            <DigitButton digit="0" />
-
-                            <button
-                                onClick={handleBackspace}
-                                disabled={isSubmitted}
-                                className="aspect-square rounded-full flex items-center justify-center bg-rose-50 dark:bg-rose-900/20 border-b-4 border-rose-200 dark:border-rose-900/50 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/40 hover:border-rose-300 dark:hover:border-rose-800 active:border-b-0 active:translate-y-1 active:mb-1 transition-all w-12 h-12 md:w-full md:h-full"
-                            >
-                                <Delete className="w-6 h-6 md:w-8 md:h-8" />
-                            </button>
-                        </div>
-                    </div>
-                )}
+                </div>
             </div>
         </div>
     );

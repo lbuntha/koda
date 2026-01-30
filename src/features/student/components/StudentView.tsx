@@ -117,6 +117,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
   // --- UI State ---
   const [resetConfirmation, setResetConfirmation] = useState<{ isOpen: boolean, step: 'confirm' | 'idle' }>({ isOpen: false, step: 'idle' });
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [activeSubjectFilter, setActiveSubjectFilter] = useState<string | null>(null); // For Desktop Dashboard filtering
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'dashboard' | 'goals' | 'activity'>('dashboard');
 
@@ -139,6 +140,10 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
     // Load current user
     const user = await getUserById(CURRENT_STUDENT_ID);
     setCurrentUser(user);
+
+    // Initial subject filter based on user preference or default to 'All'
+    // For now we default to null (All)
+
 
     const statuses: Record<string, any> = {};
     let total = 0;
@@ -231,14 +236,47 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
     handleStopPractice();
   };
 
-  const filteredSkills = skills.filter(s => s.moderationStatus === 'APPROVED' && s.questionType !== 'Custom');
-  const goalSkills = filteredSkills.filter(s => userGoals.includes(s.id));
-  const otherSkills = filteredSkills.filter(s => !userGoals.includes(s.id));
 
-  // Group skills by subject
+  // 1. Filter by Moderation & Type
+  const allApprovedSkills = useMemo(() => {
+    return skills.filter(s => s.moderationStatus === 'APPROVED' && s.questionType !== 'Custom');
+  }, [skills]);
+
+  // 2. Filter by Active Subject (if any)
+  const dashboardSkills = useMemo(() => {
+    let filtered = allApprovedSkills;
+    if (activeSubjectFilter && activeSubjectFilter !== 'All') {
+      filtered = filtered.filter(s => s.subject === activeSubjectFilter);
+    }
+    return filtered;
+  }, [allApprovedSkills, activeSubjectFilter]);
+
+  // 3. Sort by Grade Priority (Student Grade Match -> First)
+  const sortedDashboardSkills = useMemo(() => {
+    if (!currentUser?.grade) return dashboardSkills;
+
+    return [...dashboardSkills].sort((a, b) => {
+      // Primary Sort: Grade Match
+      const aMatch = a.grade === currentUser.grade;
+      const bMatch = b.grade === currentUser.grade;
+
+      if (aMatch && !bMatch) return -1;
+      if (!aMatch && bMatch) return 1;
+
+      // Secondary Sort: PublishedAt (Newest First) if available, else CreatedAt
+      const dateA = new Date(a.publishedAt || a.createdAt || 0).getTime();
+      const dateB = new Date(b.publishedAt || b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
+  }, [dashboardSkills, currentUser]);
+
+  const goalSkills = sortedDashboardSkills.filter(s => userGoals.includes(s.id));
+  const otherSkills = sortedDashboardSkills.filter(s => !userGoals.includes(s.id));
+
+  // Group skills by subject (using ALL approved skills to show counts correctly in Browse section)
   const skillsBySubject = useMemo(() => {
     const grouped: Record<string, Skill[]> = {};
-    filteredSkills.forEach(skill => {
+    allApprovedSkills.forEach(skill => {
       const subject = skill.subject || 'Other';
       if (!grouped[subject]) {
         grouped[subject] = [];
@@ -246,7 +284,24 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
       grouped[subject].push(skill);
     });
     return grouped;
-  }, [filteredSkills]);
+  }, [allApprovedSkills]);
+
+  // --- New Categories Logic ---
+  const inProgressSkills = useMemo(() => {
+    return sortedDashboardSkills.filter(s => {
+      const status = skillStatuses[s.id];
+      return status && status.progress > 0 && !status.mastered;
+    }).sort((a, b) => {
+      // Keep progress sort, but maybe prioritize grade within that? 
+      // User asked to prioritize grade.
+      // Let's stick to the sortedDashboardSkills order (Grade -> Date) 
+      // BUT specifically for in-progress, we probably want "most recently played" or "most progress".
+      // Let's keep the existing progress sort for this specific section as it makes more sense for "Continue".
+      return (skillStatuses[b.id]?.currentPoints || 0) - (skillStatuses[a.id]?.currentPoints || 0);
+    });
+  }, [sortedDashboardSkills, skillStatuses]);
+
+
 
   const subjects = Object.keys(skillsBySubject);
 
@@ -511,8 +566,54 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
               </div>
             </div>
 
+            {/* Continue Learning (In Progress) */}
+            {inProgressSkills.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2 px-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-emerald-500" />
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Continue Learning</h3>
+                  </div>
+                </div>
+                <SkillGrid
+                  skills={inProgressSkills.slice(0, 4)}
+                  userGoals={userGoals}
+                  skillStatuses={skillStatuses}
+                  onStartPractice={gameEngine.startPractice}
+                  onToggleGoal={toggleGoal}
+                />
+              </div>
+            )}
+
+            {/* My Goals */}
+            {goalSkills.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2 px-4">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">My Goals</h3>
+                  </div>
+                  <button
+                    onClick={() => setViewMode('goals')}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-0.5"
+                  >
+                    See all <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+                <SkillGrid
+                  skills={goalSkills.slice(0, 5)}
+                  userGoals={userGoals}
+                  skillStatuses={skillStatuses}
+                  onStartPractice={gameEngine.startPractice}
+                  onToggleGoal={toggleGoal}
+                />
+              </div>
+            )}
+
+
+
             {/* Featured Categories (Subjects) */}
-            <div className="mb-4">
+            <div className="mb-6">
               <div className="flex items-center justify-between mb-3 px-4">
                 <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Featured Categories</h3>
                 <button className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-0.5">
@@ -520,17 +621,54 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                 </button>
               </div>
 
-              {/* Category Grid */}
+
+              {/* Active Filter Indicator (Mobile) */}
+              {activeSubjectFilter && (
+                <div className="px-4 mb-4 animate-in fade-in slide-in-from-top">
+                  <div className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-lg flex items-center justify-between">
+                    <span className="text-sm font-medium">Filtering by: <b>{activeSubjectFilter}</b></span>
+                    <button onClick={() => setActiveSubjectFilter(null)} className="p-1 hover:bg-black/10 rounded-full">
+                      <div className="text-xs font-bold">Clear</div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Category Grid (Mobile) - Updates Filter */}
               <div className="grid grid-cols-4 gap-2 px-4">
-                {subjects.slice(0, 8).map((subject) => {
+                {/* All Option */}
+                <button
+                  onClick={() => setActiveSubjectFilter(null)}
+                  className={`
+                        flex flex-col items-center p-3 rounded-2xl border shadow-sm active:scale-95 transition-all
+                        ${activeSubjectFilter === null
+                      ? 'bg-indigo-600 border-indigo-600'
+                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700'}
+                      `}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1.5 ${activeSubjectFilter === null ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <span className={`text-[10px] font-semibold text-center leading-tight ${activeSubjectFilter === null ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>
+                    All
+                  </span>
+                </button>
+
+                {subjects.slice(0, 7).map((subject) => {
                   const config = getSubjectConfig(subject);
                   const skillCount = skillsBySubject[subject]?.length || 0;
+                  const isActive = activeSubjectFilter === subject;
 
                   return (
                     <button
                       key={subject}
-                      onClick={() => setSelectedSubject(subject)}
-                      className="flex flex-col items-center p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm active:scale-95 transition-all"
+                      onClick={() => setActiveSubjectFilter(isActive ? null : subject)}
+                      className={`
+                        flex flex-col items-center p-3 rounded-2xl border shadow-sm active:scale-95 transition-all
+                        ${isActive
+                          ? 'bg-indigo-600 border-indigo-600'
+                          : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700'}
+                      `}
                     >
                       {config.imageUrl ? (
                         <img
@@ -539,14 +677,14 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                           className="w-12 h-12 rounded-xl object-cover mb-1.5 shadow-sm"
                         />
                       ) : (
-                        <div className={`w-12 h-12 ${config.bg} rounded-xl flex items-center justify-center mb-1.5 ${config.color}`}>
+                        <div className={`w-12 h-12 ${isActive ? 'bg-white/20 text-white' : config.bg + ' ' + config.color} rounded-xl flex items-center justify-center mb-1.5`}>
                           {(() => { const Icon = getIconByName(config.icon); return <Icon className="w-6 h-6" />; })()}
                         </div>
                       )}
-                      <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 text-center leading-tight">
+                      <span className={`text-[10px] font-semibold text-center leading-tight ${isActive ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>
                         {subject}
                       </span>
-                      <span className="text-[9px] text-slate-400 mt-0.5">{skillCount}</span>
+                      <span className={`text-[9px] mt-0.5 ${isActive ? 'text-indigo-200' : 'text-slate-400'}`}>{skillCount}</span>
                     </button>
                   );
                 })}
@@ -587,7 +725,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                 </button>
               </div>
               <SkillGrid
-                skills={otherSkills.slice(0, 5)}
+                skills={otherSkills.slice(0, 10)}
                 userGoals={userGoals}
                 skillStatuses={skillStatuses}
                 onStartPractice={gameEngine.startPractice}
@@ -617,7 +755,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
             {/* Stats Cards */}
             <div className="max-w-7xl mx-auto px-6 -mt-12 relative z-20">
               <div className="grid grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom duration-500 delay-100">
-                <div className="bg-white dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 hover:scale-105 transition-transform">
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50">
                       <Flame className="w-6 h-6 text-white fill-white" />
@@ -625,10 +763,10 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                     <TrendingUp className="w-5 h-5 text-emerald-500" />
                   </div>
                   <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Current Streak</p>
-                  <p className="text-2xl font-black text-slate-800 dark:text-white">{streak} <span className="text-sm font-medium text-slate-400">days</span></p>
+                  <p className="text-2xl font-black text-slate-800 dark:text-white">{streak} <span className="text-sm font-medium text-slate-400 dark:text-slate-500">days</span></p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 hover:scale-105 transition-transform">
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200/50">
                       <Coins className="w-6 h-6 text-white" />
@@ -639,7 +777,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                   <p className="text-2xl font-black text-slate-800 dark:text-white">{totalXP.toLocaleString()}</p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 hover:scale-105 transition-transform">
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200/50">
                       <Trophy className="w-6 h-6 text-white" />
@@ -647,10 +785,10 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                     <Award className="w-5 h-5 text-emerald-500" />
                   </div>
                   <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Skills Mastered</p>
-                  <p className="text-2xl font-black text-slate-800 dark:text-white">{masteredCount} <span className="text-sm font-medium text-slate-400">/ {filteredSkills.length}</span></p>
+                  <p className="text-2xl font-black text-slate-800 dark:text-white">{masteredCount} <span className="text-sm font-medium text-slate-400 dark:text-slate-500">/ {allApprovedSkills.length}</span></p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 hover:scale-105 transition-transform">
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-rose-200/50">
                       <Target className="w-6 h-6 text-white" />
@@ -671,15 +809,41 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                   <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Browse by Subject</h2>
                 </div>
                 <div className="grid grid-cols-4 lg:grid-cols-6 gap-4">
+                  {/* All Subjects Option */}
+                  <div
+                    onClick={() => setActiveSubjectFilter(null)}
+                    className={`
+                        rounded-2xl p-4 border shadow-xl transition-all cursor-pointer flex flex-col items-center justify-center text-center
+                        ${activeSubjectFilter === null
+                        ? 'bg-indigo-600 border-indigo-600 shadow-indigo-200/50 dark:shadow-none'
+                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-indigo-100/20 dark:shadow-none hover:shadow-xl hover:-translate-y-1'}
+                      `}
+                  >
+                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-3 ${activeSubjectFilter === null ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                      <BookOpen className="w-7 h-7" />
+                    </div>
+                    <h3 className={`font-bold ${activeSubjectFilter === null ? 'text-white' : 'text-slate-800 dark:text-white'}`}>All</h3>
+                    <p className={`text-xs mt-1 ${activeSubjectFilter === null ? 'text-indigo-200' : 'text-slate-500 dark:text-slate-400'}`}>
+                      {allApprovedSkills.length} skills
+                    </p>
+                  </div>
+
                   {subjects.map((subject) => {
                     const config = getSubjectConfig(subject);
                     const skillCount = skillsBySubject[subject]?.length || 0;
                     const masteredInSubject = skillsBySubject[subject]?.filter(s => skillStatuses[s.id]?.mastered).length || 0;
+                    const isActive = activeSubjectFilter === subject;
 
                     return (
                       <div
                         key={subject}
-                        className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
+                        onClick={() => setActiveSubjectFilter(isActive ? null : subject)}
+                        className={`
+                            rounded-2xl p-4 border shadow-xl transition-all cursor-pointer
+                            ${isActive
+                            ? 'bg-indigo-600 border-indigo-600 shadow-indigo-200/50 dark:shadow-none ring-2 ring-offset-2 ring-indigo-600 dark:ring-offset-slate-950'
+                            : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-indigo-100/20 dark:shadow-none hover:shadow-xl hover:-translate-y-1'}
+                        `}
                       >
                         {config.imageUrl ? (
                           <img
@@ -688,12 +852,12 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                             className="w-14 h-14 rounded-xl object-cover mb-3 shadow-sm"
                           />
                         ) : (
-                          <div className={`w-14 h-14 ${config.bg} rounded-xl flex items-center justify-center mb-3 ${config.color}`}>
+                          <div className={`w-14 h-14 ${isActive ? 'bg-white/20 text-white' : config.bg + ' ' + config.color} rounded-xl flex items-center justify-center mb-3`}>
                             {(() => { const Icon = getIconByName(config.icon); return <Icon className="w-7 h-7" />; })()}
                           </div>
                         )}
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100">{subject}</h3>
-                        <p className="text-xs text-slate-500 mt-1">{skillCount} skills • {masteredInSubject} mastered</p>
+                        <h3 className={`font-bold ${isActive ? 'text-white' : 'text-slate-800 dark:text-white'}`}>{subject}</h3>
+                        <p className={`text-xs mt-1 ${isActive ? 'text-indigo-200' : 'text-slate-500 dark:text-slate-400'}`}>{skillCount} skills • {masteredInSubject} mastered</p>
                       </div>
                     );
                   })}
@@ -703,14 +867,9 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
               {goalSkills.length > 0 && (
                 <div className="animate-in fade-in slide-in-from-left duration-500 delay-200">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50 dark:shadow-none">
-                        <Target className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">My Priority Goals</h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Focus on these first</p>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-6 h-6 text-amber-500" />
+                      <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">My Priority Goals</h2>
                     </div>
                     <button
                       onClick={() => setViewMode('goals')}
@@ -728,6 +887,32 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                   />
                 </div>
               )}
+
+              {/* Continue Learning Desktop */}
+              {inProgressSkills.length > 0 && (
+                <div className="animate-in fade-in slide-in-from-left duration-500 delay-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200/50 dark:shadow-none">
+                        <Clock className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Continue Learning</h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Pick up where you left off</p>
+                      </div>
+                    </div>
+                  </div>
+                  <SkillGrid
+                    skills={inProgressSkills.slice(0, 4)}
+                    userGoals={userGoals}
+                    skillStatuses={skillStatuses}
+                    onStartPractice={gameEngine.startPractice}
+                    onToggleGoal={toggleGoal}
+                  />
+                </div>
+              )}
+
+
 
               <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-300">
                 <div className="flex items-center justify-between mb-4">
@@ -802,7 +987,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
           totalXP,
           masteredCount,
           streak,
-          totalSkills: filteredSkills.length
+          totalSkills: allApprovedSkills.length
         }}
         availableGrades={systemConfig.grades.map(g => g.id)}
       />

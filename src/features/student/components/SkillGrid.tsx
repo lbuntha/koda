@@ -90,7 +90,7 @@ export const SkillGrid: React.FC<SkillGridProps> = ({
 
                     {/* Title */}
                     <div className="mb-3 flex-1">
-                        <h3 className="font-bold text-base text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="font-bold text-base text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug">
                             {skill.skillName}
                         </h3>
                         {skill.example && (

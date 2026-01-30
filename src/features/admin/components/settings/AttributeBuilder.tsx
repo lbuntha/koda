@@ -115,10 +115,10 @@ export const AttributeBuilder: React.FC<AttributeBuilderProps> = ({
                                 value={newAttr.type}
                                 onChange={e => setNewAttr({ ...newAttr, type: e.target.value as any })}
                             >
-                                <option value="text">Text</option>
-                                <option value="number">Number</option>
-                                <option value="boolean">Boolean (Switch)</option>
-                                <option value="select">Select Dropdown</option>
+                                <option value="text">Text Input</option>
+                                <option value="number">Number Input</option>
+                                <option value="boolean">Yes/No Switch</option>
+                                <option value="select">Multiple Choice List</option>
                             </select>
                         </div>
                         <div>
@@ -135,10 +135,10 @@ export const AttributeBuilder: React.FC<AttributeBuilderProps> = ({
                     {/* Type specific config */}
                     {newAttr.type === 'select' && (
                         <div className="mb-3">
-                            <label className="block text-xs font-bold text-slate-500 mb-1">Options (comma separated)</label>
+                            <label className="block text-xs font-bold text-slate-500 mb-1">List Options (separated by comma)</label>
                             <input
                                 className="w-full text-sm p-2 rounded border border-slate-300"
-                                placeholder="Option 1, Option 2, Option 3"
+                                placeholder="e.g. Easy, Medium, Hard"
                                 onChange={e => setNewAttr({ ...newAttr, options: e.target.value.split(',').map(s => s.trim()) })}
                             />
                         </div>

@@ -13,6 +13,9 @@ export type {
     RewardRule,
     StudentGoal,
     SkillRank,
+    Badge,
+    BadgeCategory,
+    BadgeUnlockType,
 } from './gamification.types';
 
 // Menu and Permission types

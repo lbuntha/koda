@@ -7,3 +7,5 @@ export * from './libraryStore';
 export * from './skillStore';
 export * from './rewardStore';
 export * from './studentStore';
+export * from './badgeStore';
+export * from './leaderboardStore';

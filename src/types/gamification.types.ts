@@ -38,3 +38,21 @@ export interface SkillRank {
     color: string;
     description: string;
 }
+
+// Badge/Achievement configuration
+export type BadgeCategory = 'MASTERY' | 'STREAK' | 'XP' | 'CUSTOM';
+export type BadgeUnlockType = 'MASTERY_COUNT' | 'STREAK_DAYS' | 'XP_THRESHOLD' | 'CUSTOM';
+
+export interface Badge {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;                    // emoji or image URL
+    category: BadgeCategory;
+    unlockCriteria: {
+        type: BadgeUnlockType;
+        value: number;               // threshold value
+    };
+    isActive: boolean;
+    order: number;                   // display order
+}

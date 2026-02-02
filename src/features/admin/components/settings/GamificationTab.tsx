@@ -1,19 +1,23 @@
 // GamificationTab - Points, rewards, and gamification rules with documentation
 import React, { useState } from 'react';
-import { Zap, Trash2, BookOpen, ChevronDown, ChevronUp, Trophy, Flame, Target, Clock, Star, TrendingUp, Edit2, Check, X, Plus } from 'lucide-react';
+import { Zap, Trash2, BookOpen, ChevronDown, ChevronUp, Trophy, Flame, Target, Clock, Star, TrendingUp, Edit2, Check, X, Plus, Award } from 'lucide-react';
 import { GlobalSettings, SystemConfig } from '@stores';
-import { RewardRule, Difficulty } from '@types';
+import { RewardRule, Difficulty, Badge } from '@types';
 import { Card, Button } from '@shared/components/ui';
 
 interface GamificationTabProps {
     globalSettings: GlobalSettings;
     config: SystemConfig;
     rewards: RewardRule[];
+    badges: Badge[];
     onSettingsUpdate: (key: keyof GlobalSettings, value: number) => void;
     onConfigUpdate: (key: keyof SystemConfig, value: any) => void;
     onAddReward: (reward: Omit<RewardRule, 'id'>) => Promise<void>;
     onUpdateReward: (rule: RewardRule) => Promise<void>;
     onDeleteReward: (id: string) => void;
+    onAddBadge: (badge: Omit<Badge, 'id'>) => Promise<void>;
+    onUpdateBadge: (badge: Badge) => Promise<void>;
+    onDeleteBadge: (id: string) => void;
 }
 
 // Gamification Specs Component
@@ -199,11 +203,15 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
     globalSettings,
     config,
     rewards,
+    badges,
     onSettingsUpdate,
     onConfigUpdate,
     onAddReward,
     onUpdateReward,
-    onDeleteReward
+    onDeleteReward,
+    onAddBadge,
+    onUpdateBadge,
+    onDeleteBadge
 }) => {
     // New Reward State
     const [newReward, setNewReward] = useState<Partial<RewardRule>>({
@@ -605,6 +613,156 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                         </Button>
                     </div>
                 )}
+            </Card>
+
+            {/* Achievements/Badges Section */}
+            <Card>
+                <div className="flex items-center gap-2 mb-4">
+                    <Award className="w-5 h-5 text-purple-500" />
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Achievements & Badges</h3>
+                    <span className="ml-auto text-xs text-slate-400">{badges.length} badges</span>
+                </div>
+
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    Configure achievements that students can unlock based on their progress, streaks, and XP.
+                </p>
+
+                {/* Badge List */}
+                <div className="space-y-2 mb-4">
+                    {badges.map((badge) => (
+                        <div
+                            key={badge.id}
+                            className={`flex items-center gap-3 p-3 border rounded-lg transition-all group ${badge.isActive
+                                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-purple-200'
+                                    : 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 opacity-60'
+                                }`}
+                        >
+                            <div className="text-2xl">{badge.icon}</div>
+                            <div className="flex-1 min-w-0">
+                                <div className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                    {badge.name}
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wide ${badge.category === 'MASTERY' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                            badge.category === 'STREAK' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                                badge.category === 'XP' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' :
+                                                    'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                        }`}>
+                                        {badge.category}
+                                    </span>
+                                    {!badge.isActive && (
+                                        <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">INACTIVE</span>
+                                    )}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    {badge.description} • Unlock: {badge.unlockCriteria.type.replace('_', ' ').toLowerCase()} ≥ {badge.unlockCriteria.value}
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => onUpdateBadge({ ...badge, isActive: !badge.isActive })}
+                                    className={`p-2 rounded-full transition-colors ${badge.isActive ? 'text-slate-300 hover:text-amber-500 hover:bg-amber-50' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                                    title={badge.isActive ? 'Deactivate' : 'Activate'}
+                                >
+                                    {badge.isActive ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                                </button>
+                                <button
+                                    onClick={() => onDeleteBadge(badge.id)}
+                                    className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {badges.length === 0 && (
+                        <p className="text-sm text-slate-400 text-center py-4">No badges configured yet.</p>
+                    )}
+                </div>
+
+                {/* Add New Badge Form */}
+                <div className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg border border-dashed border-purple-300 dark:border-purple-800">
+                    <h5 className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase mb-3 flex items-center gap-2">
+                        <Plus className="w-3 h-3" />
+                        Add New Badge
+                    </h5>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <input
+                            id="new-badge-icon"
+                            className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-center text-2xl focus:ring-2 focus:ring-purple-500 outline-none"
+                            placeholder="🏆"
+                            maxLength={2}
+                        />
+                        <input
+                            id="new-badge-name"
+                            className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                            placeholder="Badge Name"
+                        />
+                        <input
+                            id="new-badge-desc"
+                            className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                            placeholder="Description (e.g. Master 10 skills)"
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                        <select
+                            id="new-badge-category"
+                            className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                            defaultValue="MASTERY"
+                        >
+                            <option value="MASTERY">Category: Mastery</option>
+                            <option value="STREAK">Category: Streak</option>
+                            <option value="XP">Category: XP</option>
+                            <option value="CUSTOM">Category: Custom</option>
+                        </select>
+                        <select
+                            id="new-badge-unlock-type"
+                            className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                            defaultValue="MASTERY_COUNT"
+                        >
+                            <option value="MASTERY_COUNT">Unlock: Skills Mastered</option>
+                            <option value="STREAK_DAYS">Unlock: Streak Days</option>
+                            <option value="XP_THRESHOLD">Unlock: XP Threshold</option>
+                            <option value="CUSTOM">Unlock: Custom</option>
+                        </select>
+                        <input
+                            id="new-badge-value"
+                            type="number"
+                            className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                            placeholder="Unlock Value (e.g. 10)"
+                            defaultValue={5}
+                        />
+                    </div>
+                    <Button
+                        size="sm"
+                        onClick={() => {
+                            const icon = (document.getElementById('new-badge-icon') as HTMLInputElement).value || '🏆';
+                            const name = (document.getElementById('new-badge-name') as HTMLInputElement).value;
+                            const desc = (document.getElementById('new-badge-desc') as HTMLInputElement).value;
+                            const category = (document.getElementById('new-badge-category') as HTMLSelectElement).value as Badge['category'];
+                            const unlockType = (document.getElementById('new-badge-unlock-type') as HTMLSelectElement).value as Badge['unlockCriteria']['type'];
+                            const value = parseInt((document.getElementById('new-badge-value') as HTMLInputElement).value) || 5;
+
+                            if (name && desc) {
+                                onAddBadge({
+                                    name,
+                                    description: desc,
+                                    icon,
+                                    category,
+                                    unlockCriteria: { type: unlockType, value },
+                                    isActive: true,
+                                    order: badges.length + 1
+                                });
+                                // Clear form
+                                (document.getElementById('new-badge-icon') as HTMLInputElement).value = '';
+                                (document.getElementById('new-badge-name') as HTMLInputElement).value = '';
+                                (document.getElementById('new-badge-desc') as HTMLInputElement).value = '';
+                            }
+                        }}
+                        className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Badge
+                    </Button>
+                </div>
             </Card>
         </div>
     );

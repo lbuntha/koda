@@ -1,4 +1,3 @@
-
 // SystemSettings - Platform configuration with tabbed interface
 import React, { useState, useEffect } from 'react';
 import { Settings, Zap, Award, CreditCard, Wand2, Box } from 'lucide-react';
@@ -7,9 +6,10 @@ import {
     getGlobalSettings, saveGlobalSettings, GlobalSettings,
     getSkillRanks, saveSkillRanks,
     getRewardRules, addRewardRule, updateRewardRule, deleteRewardRule,
+    getBadges, addBadge, updateBadge, deleteBadge,
     DEFAULT_SYSTEM_CONFIG, DEFAULT_SETTINGS
 } from '@stores';
-import { RewardRule, SkillRank } from '@types';
+import { RewardRule, SkillRank, Badge } from '@types';
 import { ConfirmationModal } from '@shared/components/ui';
 import { useToast } from '@shared/context';
 import {
@@ -37,6 +37,7 @@ export const SystemSettings: React.FC = () => {
     const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(DEFAULT_SETTINGS);
     const [skillRanks, setSkillRanks] = useState<SkillRank[]>([]);
     const [rewards, setRewards] = useState<RewardRule[]>([]);
+    const [badges, setBadges] = useState<Badge[]>([]);
     const toast = useToast();
 
     // Confirmation State
@@ -57,12 +58,14 @@ export const SystemSettings: React.FC = () => {
             setGlobalSettings(await getGlobalSettings());
             setSkillRanks(await getSkillRanks());
             setRewards(await getRewardRules());
+            setBadges(await getBadges());
         };
         loadAllSettings();
     }, []);
 
     const refreshConfig = async () => setConfig(await getSystemConfig());
     const refreshRewards = async () => setRewards(await getRewardRules());
+    const refreshBadges = async () => setBadges(await getBadges());
 
     // Platform Config handlers
     const handleAddOption = async (type: 'grades' | 'subjects', value: string) => {
@@ -161,6 +164,33 @@ export const SystemSettings: React.FC = () => {
         );
     };
 
+    // Badge handlers
+    const handleAddBadge = async (badge: Omit<Badge, 'id'>) => {
+        const badgeToAdd = {
+            ...badge,
+            id: `badge-${Date.now()}`
+        } as Badge;
+        await addBadge(badgeToAdd);
+        await refreshBadges();
+    };
+
+    const handleUpdateBadge = async (badge: Badge) => {
+        await updateBadge(badge);
+        await refreshBadges();
+    };
+
+    const handleDeleteBadge = (id: string) => {
+        openConfirm(
+            "Delete Badge?",
+            "Are you sure you want to delete this achievement badge?",
+            async () => {
+                await deleteBadge(id);
+                await refreshBadges();
+                setConfirmState(prev => ({ ...prev, isOpen: false }));
+            }
+        );
+    };
+
     // Get tab colors
     const getTabClasses = (tab: typeof TABS[number], isActive: boolean) => {
         const colors: Record<string, { active: string; inactive: string }> = {
@@ -238,11 +268,15 @@ export const SystemSettings: React.FC = () => {
                         globalSettings={globalSettings}
                         config={config}
                         rewards={rewards}
+                        badges={badges}
                         onSettingsUpdate={handleGlobalSettingsUpdate}
                         onConfigUpdate={handleConfigUpdate}
                         onAddReward={handleAddReward}
                         onUpdateReward={handleUpdateReward}
                         onDeleteReward={handleDeleteReward}
+                        onAddBadge={handleAddBadge}
+                        onUpdateBadge={handleUpdateBadge}
+                        onDeleteBadge={handleDeleteBadge}
                     />
                 )}
 

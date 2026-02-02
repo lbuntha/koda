@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 
 interface GameHeaderProps {
+    skillName?: string;
+    subject?: string;
     streak: number;
     sessionPoints: number;
     soundEnabled: boolean;
@@ -20,6 +22,8 @@ interface GameHeaderProps {
 }
 
 export const GameHeader: React.FC<GameHeaderProps> = ({
+    skillName,
+    subject,
     streak,
     sessionPoints,
     soundEnabled,
@@ -82,6 +86,16 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                         <RotateCcw className="w-5 h-5 group-hover:-rotate-180 transition-transform duration-500" />
                     </button>
                 </div>
+
+                {/* Skill Name / Subject Title */}
+                {skillName && (
+                    <div className="flex flex-col min-w-0 ml-1">
+                        {subject && (
+                            <span className="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-wider leading-tight">{subject}</span>
+                        )}
+                        <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 truncate max-w-[120px] sm:max-w-[200px] leading-tight">{skillName}</span>
+                    </div>
+                )}
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar pl-2">

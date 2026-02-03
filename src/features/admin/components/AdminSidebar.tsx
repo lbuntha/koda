@@ -41,7 +41,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     return (
         <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:relative`}>
             {/* Header */}
-            <div className="p-6 flex items-center justify-between text-white border-b border-slate-800">
+            <div className="p-6 pt-[max(1.5rem,env(safe-area-inset-top))] flex items-center justify-between text-white border-b border-slate-800">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-600 rounded-lg">
                         <ShieldCheck className="w-5 h-5" />

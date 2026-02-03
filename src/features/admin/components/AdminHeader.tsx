@@ -21,7 +21,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     onOpenMobileMenu
 }) => {
     return (
-        <header className="h-16 bg-white dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 z-10 transition-colors duration-300">
+        <header className="min-h-16 pt-[env(safe-area-inset-top)] bg-white dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 z-10 transition-colors duration-300">
             <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                 <button
                     onClick={onOpenMobileMenu}

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
 import { AdminTab } from './AdminSidebar';
+import { SafeAreaHeader } from '@shared/components/layout';
 
 interface AdminHeaderProps {
     activeTab: AdminTab;
@@ -21,7 +22,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     onOpenMobileMenu
 }) => {
     return (
-        <header className="min-h-16 pt-[env(safe-area-inset-top)] bg-white dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 z-10 transition-colors duration-300">
+        <SafeAreaHeader
+            withBorder
+            sticky
+            className="min-h-16 flex items-center justify-between px-4 md:px-8 shrink-0 backdrop-blur-md"
+        >
             <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                 <button
                     onClick={onOpenMobileMenu}
@@ -42,6 +47,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                 </div>
                 <div className="sm:hidden w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
             </div>
-        </header>
+        </SafeAreaHeader>
     );
 };

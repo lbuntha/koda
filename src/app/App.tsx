@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Role } from '@types';
 import { ThemeProvider, useTheme } from '@theme/index';
-import { Navbar } from '@shared/components/layout';
+import { Navbar, SafeAreaHeader } from '@shared/components/layout';
 import { useAuth, LoginPage, SignUpPage, logoutUser, RoleSelectionCard } from '@auth';
 
 import { AdminView } from '@features/admin';
@@ -65,7 +65,7 @@ const AppContent: React.FC = () => {
                 <>
                     {/* Special bar for Parent-viewing-as-Child */}
                     {isImpersonatingChild ? (
-                        <div className="bg-slate-900 text-white px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] flex items-center justify-between shadow-md relative z-50 sticky top-0">
+                        <SafeAreaHeader dark withBorder={false} className="px-4 py-3 flex items-center justify-between shadow-md">
                             <div className="flex items-center gap-2">
                                 <span className="bg-amber-500 text-[10px] md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-0.5 rounded text-slate-900 uppercase whitespace-nowrap">Child View</span>
                                 <span className="text-xs md:text-sm text-slate-300 truncate max-w-[120px] md:max-w-none">Viewing as child</span>
@@ -76,7 +76,7 @@ const AppContent: React.FC = () => {
                             >
                                 <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden xs:inline">Switch Profile</span><span className="xs:hidden">Exit</span>
                             </button>
-                        </div>
+                        </SafeAreaHeader>
                     ) : (
                         <Navbar
                             currentRole={currentRole}

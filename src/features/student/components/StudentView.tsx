@@ -58,6 +58,7 @@ import { GameStage } from './GameStage';
 import { MasteryModal } from './MasteryModal';
 import { StudentProfile } from './StudentProfile';
 import { StudentFullList } from './StudentFullList';
+import { SafeAreaContainer } from '@shared/components/layout';
 
 // Constants
 import { useAuth } from '@auth';
@@ -401,7 +402,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
     <div className="flex flex-col min-h-[100dvh] bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* --- Game View --- */}
       {activeSkill ? (
-        <div className="fixed inset-0 bg-white dark:bg-slate-950 z-[50] flex flex-col h-full pt-11 supports-[padding:env(safe-area-inset-top)]:pt-[max(2.75rem,env(safe-area-inset-top))]">
+        <SafeAreaContainer className="bg-white dark:bg-slate-950 z-[50]">
           <MasteryModal
             isOpen={showMasteryModal}
             onClose={() => { setShowMasteryModal(false); handleStopPractice(); }}
@@ -446,7 +447,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
               onTogglePause={gameEngine.togglePauseAutoAdvance}
             />
           </div>
-        </div>
+        </SafeAreaContainer>
       ) : selectedSubject ? (
         /* --- Subject Detail View (Mobile) --- */
         <div className="sm:hidden flex flex-col min-h-[100dvh]">

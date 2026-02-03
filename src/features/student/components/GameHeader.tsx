@@ -67,7 +67,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
     }, [sessionPoints]);
 
     return (
-        <div className="flex-none px-3 py-2 pt-3 sm:px-8 sm:py-6 border-b border-slate-100 dark:border-slate-800/60 flex justify-between items-center bg-white dark:bg-slate-900/80 backdrop-blur-md z-10 sticky top-0 relative transition-all duration-300">
+        <div className="flex-none px-3 py-2 sm:px-8 sm:py-6 border-b border-slate-100 dark:border-slate-800/60 flex justify-between items-center bg-white dark:bg-slate-900/80 backdrop-blur-md z-10 sticky top-0 relative transition-all duration-300">
             <div className="flex items-center gap-2 sm:gap-6">
                 <div className="flex items-center">
                     <button

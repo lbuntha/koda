@@ -23,7 +23,7 @@ const getClient = async (requestedModel?: string) => {
 
   // Debug Log (Masked)
   if (key) {
-    console.log(`[Gemini Service] Using API Key from: ${source} (${key.substring(0, 4)}...)`);
+    // console.log masked key
   } else {
     console.error(`[Gemini Service] NO API KEY FOUND. Checked: Settings Config and .env`);
   }
@@ -97,7 +97,6 @@ const checkAndIncrementQuota = async (
   let newUsage = currentUsage;
 
   if (user && (now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear())) {
-    console.log(`[Quota] New billing cycle for ${user.name}. Resetting usage.`);
     newUsage = 0;
     // Update reset date
     await updateUser({ ...user, tokenUsage: 0, quotaResetDate: now.toISOString() });
@@ -132,8 +131,6 @@ const checkAndIncrementQuota = async (
       difficulty: metadata.difficulty,
     }
   });
-
-  console.log(`[Quota] Deducted ${estimatedTokens} tokens. New Balance: ${newUsage + estimatedTokens}/${monthlyQuota}`);
 };
 
 const getDifficultyInstruction = (difficulty: string) => {
@@ -394,7 +391,6 @@ const cleanAndParseJson = (text: string, context: string) => {
         if (lastClosingBrace !== -1) {
           // Keep everything up to the last valid object and close the array
           const repairedText = cleanText.substring(0, lastClosingBrace + 1) + ']';
-          console.log(`[Gemini Service] Repaired Truncated JSON: ${repairedText} `);
           return JSON.parse(repairedText);
         }
       }
@@ -466,7 +462,6 @@ export const generateQuestionBankForSkill = async (
       difficulty: skill.difficulty,
     }, geminiModel);
 
-    console.log(`[QuestionBank] Generating batch of ${batchCount} questions. Total so far: ${allQuestions.length}/${count}`);
 
     try {
       const examples = skill.questionBank && skill.questionBank.length > 0
@@ -562,12 +557,9 @@ export const generateQuestionBankForSkill = async (
         allQuestions.push(...newQuestions);
         remaining = count - allQuestions.length;
 
-        console.log(`[QuestionBank] Batch generated ${batchQuestions.length}, unique added: ${newQuestions.length}. Total: ${allQuestions.length}/${count}`);
-
         // If we got significantly fewer than requested, increment retry
         if (newQuestions.length < batchCount / 2) {
           retryCount++;
-          console.log(`[QuestionBank] Low yield batch, retry count: ${retryCount}/${MAX_RETRIES}`);
         }
       } else {
         retryCount++;
@@ -589,7 +581,7 @@ export const generateQuestionBankForSkill = async (
   if (allQuestions.length < count) {
     console.warn(`[QuestionBank] Generated ${allQuestions.length}/${count} questions after ${retryCount} retries`);
   } else {
-    console.log(`[QuestionBank] Successfully generated ${allQuestions.length} questions`);
+    // Success
   }
 
   // Return what we have (may be less than requested, but better than failing)

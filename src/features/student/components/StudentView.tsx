@@ -212,7 +212,7 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
       console.error('[StudentView] Cannot save profile: currentUser is missing');
       return;
     }
-    console.log('[StudentView] Saving profile for user:', currentUser.id, 'Updates:', updates);
+
     const updatedUser = { ...currentUser, ...updates };
     await updateUser(updatedUser);
     setCurrentUser(updatedUser);

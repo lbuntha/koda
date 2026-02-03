@@ -38,7 +38,7 @@ export const useSoundEffects = (initialEnabled: boolean = true) => {
                 oscillator.stop(ctx.currentTime + 0.3);
             }
         } catch (e) {
-            console.log('Audio not supported', e);
+
         }
     }, [soundEnabled]);
 

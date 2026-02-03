@@ -57,9 +57,7 @@ export const addUser = async (user: User): Promise<void> => {
 };
 
 export const updateUser = async (updatedUser: User): Promise<void> => {
-    console.log('[UserStore] updateUser called:', { id: updatedUser.id, name: updatedUser.name, role: updatedUser.role });
     await save(COLLECTION, updatedUser);
-    console.log('[UserStore] Data saved to collection:', COLLECTION);
     const users = getUsersSync();
     const newUsers = users.map(u => u.id === updatedUser.id ? updatedUser : u);
     localStorage.setItem('edu_users', JSON.stringify(newUsers));

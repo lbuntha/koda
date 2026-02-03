@@ -149,7 +149,7 @@ export const TeacherView: React.FC = () => {
 
     const handleSaveProfile = async (updates: Partial<typeof user>) => {
         if (!user) return;
-        console.log('[TeacherView] Saving profile:', updates);
+
         const updatedUser = { ...user, ...updates };
         await updateUser(updatedUser as any); // Type assertion needed due to some type mismatch in store vs auth hook potentially
         window.dispatchEvent(new Event('user-profile-updated')); // Same pattern as StudentView

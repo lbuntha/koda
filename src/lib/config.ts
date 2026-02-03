@@ -24,12 +24,9 @@ if (isConfigured) {
         app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
-        console.log('Firebase initialized successfully');
     } catch (error) {
-        console.warn('Firebase initialization failed:', error);
     }
 } else {
-    console.log('Firebase not configured - using localStorage fallback');
 }
 
 export { app, db, auth };

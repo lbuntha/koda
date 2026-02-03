@@ -228,5 +228,5 @@ export const clearAll = async (): Promise<void> => {
     localStorage.removeItem('edu_library');
     localStorage.removeItem('edu_skill_ranks');
 
-    console.log('All local data cleared');
+
 };

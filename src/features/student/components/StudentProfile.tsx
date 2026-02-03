@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     X, Camera, Check, User as UserIcon, Star, Trophy, Flame,
-    BookOpen, Sparkles, Save
+    BookOpen, Sparkles, Save, LogOut
 } from 'lucide-react';
 import { User } from '@types';
 import { Button } from '@shared/components/ui';
@@ -12,6 +12,7 @@ interface StudentProfileProps {
     onClose: () => void;
     user: User | null;
     onSave: (updates: Partial<User>) => Promise<void>;
+    onLogout?: () => void;
     stats: {
         totalXP: number;
         masteredCount: number;
@@ -36,6 +37,7 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
     onClose,
     user,
     onSave,
+    onLogout,
     stats,
     availableGrades
 }) => {
@@ -249,25 +251,38 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
                 </div>
 
                 {/* Footer buttons */}
-                <div className="px-6 pb-6 flex gap-3">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                        {isSaving ? (
-                            <Sparkles className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Save className="w-4 h-4" />
-                        )}
-                        Save Changes
-                    </button>
+                <div className="px-6 pb-6 space-y-3">
+                    <div className="flex gap-3">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {isSaving ? (
+                                <Sparkles className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Save className="w-4 h-4" />
+                            )}
+                            Save Changes
+                        </button>
+                    </div>
+
+                    {/* Logout button - visible on mobile */}
+                    {onLogout && (
+                        <button
+                            onClick={onLogout}
+                            className="w-full py-2.5 rounded-xl border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-medium text-sm hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors flex items-center justify-center gap-2"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Log Out
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

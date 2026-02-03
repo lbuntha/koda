@@ -87,9 +87,9 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                     </button>
                 </div>
 
-                {/* Skill Name / Subject Title */}
+                {/* Skill Name / Subject Title - Hidden on mobile, shown on larger screens */}
                 {skillName && (
-                    <div className="flex flex-col min-w-0 ml-1">
+                    <div className="hidden sm:flex flex-col min-w-0 ml-1">
                         {subject && (
                             <span className="text-[9px] sm:text-[10px] font-bold text-indigo-500 uppercase tracking-wider leading-tight">{subject}</span>
                         )}

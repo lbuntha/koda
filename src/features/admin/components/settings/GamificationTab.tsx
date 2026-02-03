@@ -632,44 +632,152 @@ export const GamificationTab: React.FC<GamificationTabProps> = ({
                     {badges.map((badge) => (
                         <div
                             key={badge.id}
-                            className={`flex items-center gap-3 p-3 border rounded-lg transition-all group ${badge.isActive
-                                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-purple-200'
-                                    : 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 opacity-60'
+                            className={`p-3 border rounded-lg transition-all ${badge.isActive
+                                ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-purple-200'
+                                : 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 opacity-60'
                                 }`}
                         >
-                            <div className="text-2xl">{badge.icon}</div>
-                            <div className="flex-1 min-w-0">
-                                <div className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                    {badge.name}
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wide ${badge.category === 'MASTERY' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            {/* View Mode */}
+                            <div className="flex items-center gap-3 group">
+                                <div className="text-2xl">{badge.icon}</div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                        {badge.name}
+                                        <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wide ${badge.category === 'MASTERY' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
                                             badge.category === 'STREAK' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
                                                 badge.category === 'XP' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' :
                                                     'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                                        }`}>
-                                        {badge.category}
-                                    </span>
-                                    {!badge.isActive && (
-                                        <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">INACTIVE</span>
-                                    )}
+                                            }`}>
+                                            {badge.category}
+                                        </span>
+                                        {!badge.isActive && (
+                                            <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">INACTIVE</span>
+                                        )}
+                                    </div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                        {badge.description} • Unlock: {badge.unlockCriteria.type.replace('_', ' ').toLowerCase()} ≥ {badge.unlockCriteria.value}
+                                    </div>
                                 </div>
-                                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                    {badge.description} • Unlock: {badge.unlockCriteria.type.replace('_', ' ').toLowerCase()} ≥ {badge.unlockCriteria.value}
+                                <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => {
+                                            // Create inline edit form
+                                            const row = document.getElementById(`badge-edit-${badge.id}`);
+                                            if (row) {
+                                                row.classList.toggle('hidden');
+                                            }
+                                        }}
+                                        className="text-slate-300 hover:text-purple-500 p-2 hover:bg-purple-50 rounded-full transition-colors"
+                                        title="Edit"
+                                    >
+                                        <Edit2 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => onUpdateBadge({ ...badge, isActive: !badge.isActive })}
+                                        className={`p-2 rounded-full transition-colors ${badge.isActive ? 'text-slate-300 hover:text-amber-500 hover:bg-amber-50' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                                        title={badge.isActive ? 'Deactivate' : 'Activate'}
+                                    >
+                                        {badge.isActive ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                                    </button>
+                                    <button
+                                        onClick={() => onDeleteBadge(badge.id)}
+                                        className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => onUpdateBadge({ ...badge, isActive: !badge.isActive })}
-                                    className={`p-2 rounded-full transition-colors ${badge.isActive ? 'text-slate-300 hover:text-amber-500 hover:bg-amber-50' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
-                                    title={badge.isActive ? 'Deactivate' : 'Activate'}
-                                >
-                                    {badge.isActive ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-                                </button>
-                                <button
-                                    onClick={() => onDeleteBadge(badge.id)}
-                                    className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-colors"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
+
+                            {/* Edit Form (hidden by default) */}
+                            <div id={`badge-edit-${badge.id}`} className="hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                                    <input
+                                        id={`edit-badge-icon-${badge.id}`}
+                                        className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2 text-center text-xl focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={badge.icon}
+                                        maxLength={2}
+                                    />
+                                    <input
+                                        id={`edit-badge-name-${badge.id}`}
+                                        className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={badge.name}
+                                        placeholder="Badge Name"
+                                    />
+                                    <input
+                                        id={`edit-badge-desc-${badge.id}`}
+                                        className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={badge.description}
+                                        placeholder="Description"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                                    <select
+                                        id={`edit-badge-category-${badge.id}`}
+                                        className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={badge.category}
+                                    >
+                                        <option value="MASTERY">Category: Mastery</option>
+                                        <option value="STREAK">Category: Streak</option>
+                                        <option value="XP">Category: XP</option>
+                                        <option value="CUSTOM">Category: Custom</option>
+                                    </select>
+                                    <select
+                                        id={`edit-badge-unlock-type-${badge.id}`}
+                                        className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={badge.unlockCriteria.type}
+                                    >
+                                        <option value="MASTERY_COUNT">Unlock: Skills Mastered</option>
+                                        <option value="STREAK_DAYS">Unlock: Streak Days</option>
+                                        <option value="XP_THRESHOLD">Unlock: XP Threshold</option>
+                                        <option value="CUSTOM">Unlock: Custom</option>
+                                    </select>
+                                    <input
+                                        id={`edit-badge-value-${badge.id}`}
+                                        type="number"
+                                        className="border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={badge.unlockCriteria.value}
+                                        placeholder="Unlock Value"
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                            const row = document.getElementById(`badge-edit-${badge.id}`);
+                                            if (row) row.classList.add('hidden');
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => {
+                                            const icon = (document.getElementById(`edit-badge-icon-${badge.id}`) as HTMLInputElement).value || badge.icon;
+                                            const name = (document.getElementById(`edit-badge-name-${badge.id}`) as HTMLInputElement).value || badge.name;
+                                            const desc = (document.getElementById(`edit-badge-desc-${badge.id}`) as HTMLInputElement).value || badge.description;
+                                            const category = (document.getElementById(`edit-badge-category-${badge.id}`) as HTMLSelectElement).value as Badge['category'];
+                                            const unlockType = (document.getElementById(`edit-badge-unlock-type-${badge.id}`) as HTMLSelectElement).value as Badge['unlockCriteria']['type'];
+                                            const value = parseInt((document.getElementById(`edit-badge-value-${badge.id}`) as HTMLInputElement).value) || badge.unlockCriteria.value;
+
+                                            onUpdateBadge({
+                                                ...badge,
+                                                icon,
+                                                name,
+                                                description: desc,
+                                                category,
+                                                unlockCriteria: { type: unlockType, value }
+                                            });
+
+                                            const row = document.getElementById(`badge-edit-${badge.id}`);
+                                            if (row) row.classList.add('hidden');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                                    >
+                                        <Check className="w-3 h-3 mr-1" />
+                                        Save
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     ))}

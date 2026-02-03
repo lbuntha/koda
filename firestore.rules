@@ -45,22 +45,9 @@ service cloud.firestore {
 
     // USERS Collection
     match /users/{userId} {
-      // Read:
-      // 1. Own profile
-      // 2. Admin
-      // 3. Teacher (needs to see students) - For now allowing Teachers to read all users to simplify class management, 
-      //    or strict: allow if role is student. Let's start with broader Teacher read access.
-      // 4. Parent (if they are linked? Parent needs to read their child's profile).
-      //    This creates a circular dependency if we check parent's doc here. 
-      //    Simplification: authenticated users can read basic profiles? 
-      //    Better: Allow read if request.auth.uid == userId OR isAdmin() OR isTeacher().
-      allow read: if isAuthenticated() && (
-        request.auth.uid == userId || 
-        isAdmin() || 
-        isTeacher() ||
-        // Allow parent to read their child's profile
-        (isParent() && userId in getUserData().children)
-      );
+      // Read: All authenticated users can read user profiles
+      // This is needed for features like leaderboards, class rosters, etc.
+      allow read: if isAuthenticated();
 
       // Create:
       // Allow users to sign up. 
@@ -121,14 +108,16 @@ service cloud.firestore {
       allow write: if isAdmin() || isTeacher();
     }
 
+    // BADGES Collection (Achievements)
+    match /badges/{badgeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isTeacher();
+    }
+
     // GOALS Collection
     match /goals/{goalId} {
-      allow read: if isAuthenticated() && (
-        resource.data.studentId == request.auth.uid ||
-        isAdmin() ||
-        isTeacher() ||
-        isParentOf(resource.data.studentId)
-      );
+      // Read: All authenticated users can read goals
+      allow read: if isAuthenticated();
       allow write: if isAuthenticated() && (
         request.resource.data.studentId == request.auth.uid ||
         isAdmin() ||

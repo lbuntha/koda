@@ -65,7 +65,7 @@ const AppContent: React.FC = () => {
                 <>
                     {/* Special bar for Parent-viewing-as-Child */}
                     {isImpersonatingChild ? (
-                        <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between shadow-md relative z-50 sticky top-0">
+                        <div className="bg-slate-900 text-white px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] flex items-center justify-between shadow-md relative z-50 sticky top-0">
                             <div className="flex items-center gap-2">
                                 <span className="bg-amber-500 text-[10px] md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-0.5 rounded text-slate-900 uppercase whitespace-nowrap">Child View</span>
                                 <span className="text-xs md:text-sm text-slate-300 truncate max-w-[120px] md:max-w-none">Viewing as child</span>

@@ -1,6 +1,14 @@
+import React from 'react';
+import { CheckCircle } from 'lucide-react';
 import { RichText } from '@shared/components/ui/RichText';
+import { GeneratedQuestion } from '@types';
 
-// ...
+export interface SkillRendererProps {
+    question: GeneratedQuestion;
+    onAnswer: (answer: string) => void;
+    isSubmitted: boolean;
+    selectedAnswer?: string;
+}
 
 export const DefaultRenderer: React.FC<SkillRendererProps> = ({ question, onAnswer, isSubmitted, selectedAnswer }) => {
     return (

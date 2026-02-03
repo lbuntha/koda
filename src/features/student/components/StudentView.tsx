@@ -58,7 +58,7 @@ import { GameStage } from './GameStage';
 import { MasteryModal } from './MasteryModal';
 import { StudentProfile } from './StudentProfile';
 import { StudentFullList } from './StudentFullList';
-import { SafeAreaContainer } from '@shared/components/layout';
+import { SafeAreaContainer, ProfileMenu } from '@shared/components/layout';
 
 // Constants
 import { useAuth, logoutUser } from '@auth';
@@ -567,16 +567,19 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
                     <Flame className="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse" />
                     <span className="font-bold text-amber-700 dark:text-amber-400 text-sm">{streak}</span>
                   </div>
-                  <button
-                    onClick={() => setIsProfileOpen(true)}
-                  >
-                    <Avatar
-                      src={currentUser?.avatar}
-                      role={Role.STUDENT}
-                      size="md"
-                      className="hover:scale-105"
+                  <div className="relative">
+                    <ProfileMenu
+                      user={currentUser}
+                      currentRole={Role.STUDENT}
+                      onExit={logoutUser}
+                      onProfileClick={() => setIsProfileOpen(true)}
+                      roleConfig={{
+                        label: currentUser?.displayName || currentUser?.name || 'Student',
+                        avatar: currentUser?.avatar || '👨‍🎓',
+                        gradient: 'from-emerald-500 to-teal-500'
+                      }}
                     />
-                  </button>
+                  </div>
                 </div>
               </div>
 

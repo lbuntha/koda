@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import {
     X, Camera, Check, User as UserIcon, Star, Trophy, Flame,
-    BookOpen, Sparkles, Save, LogOut
+    BookOpen, Sparkles, Save, LogOut,
+    Sun, Moon, Monitor
 } from 'lucide-react';
 import { User } from '@types';
 import { Button } from '@shared/components/ui';
+import { useTheme } from '@theme/index';
 
 interface StudentProfileProps {
     isOpen: boolean;
@@ -47,6 +49,9 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
     const [bio, setBio] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
     const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+
+    // Theme hook
+    const { mode, setMode } = useTheme();
 
     // Initialize form with user data
     useEffect(() => {
@@ -247,6 +252,32 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
                             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                         />
                         <p className="text-[10px] text-slate-400 text-right mt-1">{bio.length}/200</p>
+                    </div>
+
+                    {/* Appearance */}
+                    <div>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5 block">
+                            App Theme
+                        </label>
+                        <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-800 rounded-xl p-1 border border-slate-100 dark:border-slate-700">
+                            {[
+                                { id: 'light', label: 'Light', icon: Sun },
+                                { id: 'dark', label: 'Dark', icon: Moon },
+                                { id: 'system', label: 'Auto', icon: Monitor }
+                            ].map((option) => (
+                                <button
+                                    key={option.id}
+                                    onClick={() => setMode(option.id as 'light' | 'dark' | 'system')}
+                                    className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${mode === option.id
+                                            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/50'
+                                        }`}
+                                >
+                                    <option.icon className="w-4 h-4" />
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

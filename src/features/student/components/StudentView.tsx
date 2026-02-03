@@ -288,12 +288,13 @@ export const StudentView: React.FC<StudentViewProps> = ({ studentId }) => {
 
   // 3. Sort by Grade Priority (Student Grade Match -> First)
   const sortedDashboardSkills = useMemo(() => {
-    if (!currentUser?.grade) return dashboardSkills;
+    const userGrade = currentUser?.grades?.[0];
+    if (!userGrade) return dashboardSkills;
 
     return [...dashboardSkills].sort((a, b) => {
       // Primary Sort: Grade Match
-      const aMatch = a.grade === currentUser.grade;
-      const bMatch = b.grade === currentUser.grade;
+      const aMatch = a.grade === userGrade;
+      const bMatch = b.grade === userGrade;
 
       if (aMatch && !bMatch) return -1;
       if (!aMatch && bMatch) return 1;

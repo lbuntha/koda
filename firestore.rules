@@ -63,7 +63,8 @@ service cloud.firestore {
       // 2. Admin can update anyone.
       allow update: if isAuthenticated() && (
         (request.auth.uid == userId && request.resource.data.role == resource.data.role) || 
-        isAdmin()
+        isAdmin() ||
+        isParentOf(userId)
       );
 
       // Delete: Admin only

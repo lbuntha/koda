@@ -203,12 +203,17 @@ export const SkillGrid: React.FC<SkillGridProps> = ({
 
     if (skills.length === 0) {
         return (
-            <div className="py-12 text-center px-4">
-                <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Target className="w-7 h-7 text-slate-400" />
+            <div className="py-16 text-center px-4 animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-20 h-20 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                    <Sparkles className="w-10 h-10 text-indigo-400" />
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center animate-bounce">
+                        <Star className="w-3 h-3 text-white fill-white" />
+                    </div>
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">No skills found</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Check back later for new content</p>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2">No skills to display yet</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
+                    We couldn't find any skills matching your current filters. Try changing your subject filter or updating your grade in settings!
+                </p>
             </div>
         );
     }

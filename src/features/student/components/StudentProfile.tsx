@@ -47,6 +47,7 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
     const [displayName, setDisplayName] = useState<string>('');
     const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
     const [bio, setBio] = useState<string>('');
+    const [dailyGoal, setDailyGoal] = useState<number>(5);
     const [isSaving, setIsSaving] = useState(false);
     const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
@@ -60,6 +61,7 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
             setDisplayName(user.displayName || user.name || '');
             setSelectedGrades(user.grades || []);
             setBio(user.bio || '');
+            setDailyGoal(user.dailyGoal || 5);
         }
     }, [user]);
 
@@ -71,7 +73,8 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
                 displayName,
                 name: displayName,
                 grades: selectedGrades,
-                bio
+                bio,
+                dailyGoal
             });
             onClose();
         } finally {
@@ -254,6 +257,24 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
                         <p className="text-[10px] text-slate-400 text-right mt-1">{bio.length}/200</p>
                     </div>
 
+                    {/* Daily Goal */}
+                    <div>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5 block">
+                            Daily Goal Target
+                        </label>
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="number"
+                                value={dailyGoal}
+                                onChange={(e) => setDailyGoal(Math.max(1, Math.min(50, parseInt(e.target.value) || 5)))}
+                                min={1}
+                                max={50}
+                                className="w-20 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center font-bold"
+                            />
+                            <span className="text-sm text-slate-500 dark:text-slate-400">skills per day</span>
+                        </div>
+                    </div>
+
                     {/* Appearance */}
                     <div>
                         <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1.5 block">
@@ -269,8 +290,8 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
                                     key={option.id}
                                     onClick={() => setMode(option.id as 'light' | 'dark' | 'system')}
                                     className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${mode === option.id
-                                            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/50'
+                                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700/50'
                                         }`}
                                 >
                                     <option.icon className="w-4 h-4" />

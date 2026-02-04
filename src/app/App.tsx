@@ -106,7 +106,7 @@ const AppContent: React.FC = () => {
             <main className={currentRole === Role.ADMIN || isImpersonatingChild ? "w-full h-full min-h-screen" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"}>
                 <div className={currentRole === Role.ADMIN ? "h-full" : "min-h-[80vh]"}>
                     {currentRole === Role.TEACHER && <TeacherView />}
-                    {currentRole === Role.STUDENT && <StudentView />}
+                    {currentRole === Role.STUDENT && <StudentView currentUser={user!} />}
 
                     {currentRole === Role.PARENT && (
                         <>

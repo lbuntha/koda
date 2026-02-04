@@ -22,6 +22,7 @@ export interface User {
     displayName?: string;     // Optional display name override
     grades?: string[];        // Student's grade levels (can select multiple)
     bio?: string;             // Short bio/description
+    dailyGoal?: number;       // Target number of skills to complete daily
 
     // Token Management
     subscriptionTier?: string; // 'free', 'basic', 'pro'

@@ -110,7 +110,7 @@ export const StudentView: React.FC<StudentViewProps> = ({
   skillsBySubject: propSkillsBySubject
 }) => {
   // --- State ---
-  const [viewMode, setViewMode] = useState<'dashboard' | 'goals' | 'activity'>(initialViewMode);
+  const [viewMode, setViewMode] = useState<'dashboard' | 'goals' | 'activity' | 'mastered'>(initialViewMode);
   const [mobileTab, setMobileTab] = useState<'learn' | 'ranks' | 'badges'>('learn');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [systemConfig, setSystemConfig] = useState<SystemConfig>(DEFAULT_SYSTEM_CONFIG);
@@ -353,14 +353,20 @@ export const StudentView: React.FC<StudentViewProps> = ({
 
   // Categorize Skills for Dashboard
   const allApprovedSkills = skills; // Already filtered in refreshData
+
+  // 1. Goals: Manually selected by user
   const goalSkills = allApprovedSkills.filter(s => userGoals.includes(s.id));
+
+  // 2. Mastered: Score is 100% or marked as mastered
+  const masteredSkills = allApprovedSkills.filter(s => skillStatuses[s.id]?.mastered);
+
+  // 3. In Progress: Started (>0 score) but NOT mastered and NOT in goals (to avoid dupe)
   const inProgressSkills = allApprovedSkills.filter(s => {
     const status = skillStatuses[s.id];
     return status && status.totalScore > 0 && !status.mastered && !userGoals.includes(s.id);
   });
-  const masteredSkills = allApprovedSkills.filter(s => skillStatuses[s.id]?.mastered);
 
-  // Other skills (not goals, not in progress, not mastered) - "Explore"
+  // 4. Explore/New: Not started, not mastered, not in goals
   const otherSkills = allApprovedSkills.filter(s =>
     !userGoals.includes(s.id) &&
     (!skillStatuses[s.id] || skillStatuses[s.id].totalScore === 0) &&
@@ -434,8 +440,8 @@ export const StudentView: React.FC<StudentViewProps> = ({
         />
       ) : viewMode === 'activity' ? (
         <StudentFullList
-          title="Recent Activity"
-          description="Explore all available skills"
+          title="New Skills"
+          description="Explore all available skills you haven't started yet"
           skills={otherSkills}
           onBack={() => setViewMode('dashboard')}
           userGoals={userGoals}
@@ -444,6 +450,19 @@ export const StudentView: React.FC<StudentViewProps> = ({
           onToggleGoal={(e, id) => toggleGoal(id)}
           icon={BookOpen}
           colorClass="text-indigo-500"
+        />
+      ) : viewMode === 'mastered' ? (
+        <StudentFullList
+          title="Mastered Skills"
+          description="Skills you have successfully completed"
+          skills={masteredSkills}
+          onBack={() => setViewMode('dashboard')}
+          userGoals={userGoals}
+          skillStatuses={skillStatuses}
+          onStartPractice={gameEngine.startPractice}
+          onToggleGoal={(e, id) => toggleGoal(id)}
+          icon={Trophy}
+          colorClass="text-emerald-500"
         />
       ) : (
         /* --- Dashboard View --- */

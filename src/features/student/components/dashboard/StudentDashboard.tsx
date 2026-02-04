@@ -48,7 +48,7 @@ interface StudentDashboardProps {
     handleSaveProfile: (updatedData: Partial<User>) => Promise<void>;
     logoutUser: () => void;
     systemConfig: any;
-    setViewMode: (mode: 'dashboard' | 'goals' | 'activity') => void;
+    setViewMode: (mode: 'dashboard' | 'goals' | 'activity' | 'mastered') => void;
     mobileTab: 'learn' | 'ranks' | 'badges';
     skillsBySubject: Record<string, Skill[]>;
     isLoading: boolean;
@@ -284,6 +284,48 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                                 />
                             </div>
 
+                            {/* 3.5 Continue Learning (Mobile) */}
+                            {filteredInProgressSkills.length > 0 && (
+                                <div className="px-4 mb-8">
+                                    <div className="flex items-center justify-between mb-3 px-1">
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="w-4 h-4 text-emerald-500" />
+                                            <h3 className="text-sm font-bold text-slate-800 dark:text-white">Continue Learning</h3>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 no-scrollbar">
+                                        {filteredInProgressSkills.map(skill => (
+                                            <div key={skill.id} className="min-w-[260px]">
+                                                {/* Re-use grid item logic essentially, but tailored for horizontal scroll */}
+                                                <div
+                                                    onClick={() => gameEngine.startPractice(skill)}
+                                                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm active:scale-95 transition-transform"
+                                                >
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                                                            RESUME
+                                                        </span>
+                                                        {skillStatuses[skill.id]?.totalScore > 0 && (
+                                                            <div className="flex items-center gap-1 text-xs font-medium text-slate-500">
+                                                                <Award className="w-3 h-3 text-amber-400" />
+                                                                {skillStatuses[skill.id]?.totalScore} pts
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <h4 className="font-bold text-slate-800 dark:text-white mb-1 line-clamp-1">{skill.skillName}</h4>
+                                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-emerald-500 rounded-full"
+                                                            style={{ width: `${Math.min(100, (skillStatuses[skill.id]?.totalScore / 1000) * 100)}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* 4. Recommendation */}
                             {recommendedSkills.length > 0 && (
                                 <div className="px-4 mb-8">
@@ -305,7 +347,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                                 {filteredOtherSkills.length > 0 && (
                                     <div className="flex items-center justify-between mb-3 px-1">
                                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
-                                            All Skills
+                                            New Skills
                                         </h3>
                                         {filteredOtherSkills.length > 10 && (
                                             <button
@@ -325,6 +367,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                                     onToggleGoal={(e, id) => toggleGoal(id)}
                                 />
                             </div>
+
+                            {/* View Mastered Link (Mobile) */}
+                            {masteredCount > 0 && (
+                                <div className="px-4 mt-2 mb-8">
+                                    <button
+                                        onClick={() => setViewMode('mastered')}
+                                        className="w-full py-3 rounded-xl border border-dashed border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 text-sm font-bold flex items-center justify-center gap-2"
+                                    >
+                                        <Trophy className="w-4 h-4" />
+                                        View Completed Skills ({masteredCount})
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                     )}
@@ -517,9 +572,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                                        {filteredGoalSkills.length > 0 ? "All Available Skills" : "Explore Skills"}
+                                        {filteredGoalSkills.length > 0 ? "Explore New Skills" : "Explore Skills"}
                                     </h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{filteredOtherSkills.length} skills to explore</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{filteredOtherSkills.length} new skills available</p>
                                 </div>
                             </div>
                         </div>
@@ -530,6 +585,18 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                             onStartPractice={gameEngine.startPractice}
                             onToggleGoal={(e, id) => toggleGoal(id)}
                         />
+                        {/* View Mastered Link (Desktop) */}
+                        {masteredCount > 0 && (
+                            <div className="mt-8 flex justify-center">
+                                <button
+                                    onClick={() => setViewMode('mastered')}
+                                    className="px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-sm font-bold flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    <Trophy className="w-4 h-4 text-emerald-500" />
+                                    View Mastered Skills ({masteredCount})
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

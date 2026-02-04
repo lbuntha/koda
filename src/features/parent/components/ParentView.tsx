@@ -33,25 +33,22 @@ export const ParentView: React.FC = () => {
   const [maxChildren, setMaxChildren] = useState<number>(1);
 
   // ... (useEffect and loadFamilyData remain same) ...
+  // Listen for profile open request from Navbar
   useEffect(() => {
-    if (user) {
-      loadFamilyData();
-    }
-
-    // Listen for profile open request from Navbar
     const handleOpenProfile = () => setIsProfileOpen(true);
     window.addEventListener('open-parent-profile', handleOpenProfile);
+    return () => window.removeEventListener('open-parent-profile', handleOpenProfile);
+  }, []); // Empty dependency array to ensure stable listener
 
-    return () => {
-      window.removeEventListener('open-parent-profile', handleOpenProfile);
-    };
+  useEffect(() => {
+    // Refresh data when user changes
+    if (user) loadFamilyData();
   }, [user]);
 
   useEffect(() => {
     if (selectedChildId) {
       loadAnalytics(selectedChildId);
     } else {
-      // Clear data if no child selected
       setData([]);
       setRecentActivity([]);
       setStats({ skillsMastered: 0, avgAccuracy: 0, streak: 0 });
@@ -221,7 +218,7 @@ export const ParentView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 bg-slate-50 dark:bg-[#0B1120] min-h-screen p-6 md:p-8 transition-colors duration-300">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#0B1120] transition-colors duration-300">
       {/* ... Modals ... */}
       <AddChildModal
         isOpen={isAddChildOpen}
@@ -246,43 +243,64 @@ export const ParentView: React.FC = () => {
         planName={user?.subscriptionTier === 'pro' ? 'Pro' : user?.subscriptionTier === 'basic' ? 'Basic' : 'Free'}
       />
 
-      {/* ... Header & Child Selector (Keep same) ... */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Parent Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Monitor your child's learning journey and mastery.</p>
-        </div>
+      <ParentProfile
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        user={currentUser}
+        onSave={handleSaveProfile}
+      />
 
-        <div className="flex items-center gap-3">
-          {/* Child Selector */}
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-purple-600 via-pink-500 to-rose-500 dark:from-purple-900 dark:via-purple-800 dark:to-pink-900 px-6 pt-8 pb-24 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-400/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+
+        <div className="max-w-7xl mx-auto relative z-10 w-full animate-in fade-in slide-in-from-left duration-500">
+          <h1 className="text-3xl font-black text-white mb-2">Parent Dashboard</h1>
+          <p className="text-purple-100 text-lg">Monitor your child's learning journey and mastery.</p>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto w-full px-6 -mt-16 relative z-20 space-y-6 pb-12">
+
+        {/* Child Selector Card */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-xl shadow-purple-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom duration-500">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl text-purple-600 dark:text-purple-400">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-800 dark:text-white">Your Children</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Select a profile to view status</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             {children.length > 0 ? (
-              <div className="flex items-center">
-                <span className="text-xs font-bold text-slate-400 uppercase px-3 hidden sm:block">Viewing:</span>
-                <div className="flex gap-1 overflow-x-auto max-w-[200px] sm:max-w-none custom-scrollbar">
-                  {children.map(child => (
-                    <button
-                      key={child.id}
-                      onClick={() => setSelectedChildId(child.id)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${selectedChildId === child.id
-                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
-                        }`}
-                    >
-                      <Avatar src={child.avatar} size="sm" role={Role.STUDENT} />
-                      <span className="hidden sm:inline">{child.name.split(' ')[0]}</span>
-                      {selectedChildId === child.id && <Check className="w-3 h-3 ml-1" />}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center gap-2">
+                {children.map(child => (
+                  <button
+                    key={child.id}
+                    onClick={() => setSelectedChildId(child.id)}
+                    className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap border ${selectedChildId === child.id
+                      ? 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-300 shadow-sm'
+                      : 'bg-slate-50 border-transparent hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                  >
+                    <Avatar src={child.avatar} size="sm" role={Role.STUDENT} />
+                    <span className="hidden sm:inline">{child.name.split(' ')[0]}</span>
+                    {selectedChildId === child.id && <Check className="w-3 h-3 ml-1" />}
+                  </button>
+                ))}
               </div>
             ) : (
-              <span className="px-4 py-2 text-sm text-slate-500 italic">No children linked</span>
+              <span className="text-sm text-slate-500 italic">No children linked</span>
             )}
-            <div className="w-px h-8 bg-slate-100 mx-1"></div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-1 pr-1">
+            <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-1"></div>
+
+            <div className="flex items-center gap-1">
               {selectedChildId && (
                 <Button
                   size="sm"
@@ -292,141 +310,151 @@ export const ParentView: React.FC = () => {
                     if (child) setEditingChild(child);
                   }}
                   title="Edit Child Profile"
+                  className="text-slate-400 hover:text-purple-600"
                 >
-                  <Settings className="w-4 h-4 text-slate-400 hover:text-indigo-600 transition-colors" />
+                  <Settings className="w-4 h-4" />
                 </Button>
               )}
               <Button
                 size="sm"
-                variant="ghost"
+                className={`${children.length >= maxChildren ? 'bg-amber-100 text-amber-600 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'} border-transparent`}
                 onClick={handleAddChildClick}
                 title={children.length >= maxChildren ? "Plan Limit Reached" : "Add Child"}
               >
-                <UserPlus className={`w-4 h-4 ${children.length >= maxChildren ? 'text-amber-500' : 'text-emerald-600'}`} />
+                <UserPlus className="w-4 h-4" />
               </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {children.length === 0 ? (
-        <Card className="py-12 text-center border-dashed border-2 border-slate-200 bg-slate-50">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserPlus className="w-8 h-8" />
-          </div>
-          <h3 className="text-lg font-bold text-slate-700">Add your first child</h3>
-          <p className="text-slate-500 max-w-sm mx-auto mb-6">Connect a student account to view their progress, grades, and learning habits.</p>
-          <Button
-            onClick={handleAddChildClick}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
-            Add Child Account
-          </Button>
-        </Card>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Skills Mastered</p>
-                  <h3 className="text-3xl font-bold text-slate-800 dark:text-white mt-2">{stats.skillsMastered}</h3>
+        {children.length === 0 ? (
+          <Card className="py-12 text-center border-dashed border-2 border-slate-200 bg-slate-50">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <UserPlus className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-700">Add your first child</h3>
+            <p className="text-slate-500 max-w-sm mx-auto mb-6">Connect a student account to view their progress, grades, and learning habits.</p>
+            <Button
+              onClick={handleAddChildClick}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Add Child Account
+            </Button>
+          </Card>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom duration-500 delay-100">
+              <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl shadow-purple-100/20 dark:shadow-none hover:scale-[1.02] transition-transform">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Skills Mastered</p>
+                    <h3 className="text-3xl font-black text-slate-800 dark:text-white mt-2">{stats.skillsMastered}</h3>
+                  </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400">
+                    <Target className="w-6 h-6" />
+                  </div>
                 </div>
-                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
-                  <Target className="w-6 h-6" />
+              </div>
+
+              <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl shadow-purple-100/20 dark:shadow-none hover:scale-[1.02] transition-transform">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg. Accuracy</p>
+                    <h3 className="text-3xl font-black text-slate-800 dark:text-white mt-2">{stats.avgAccuracy}%</h3>
+                  </div>
+                  <div className={`p-3 rounded-xl ${stats.avgAccuracy >= 80 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'}`}>
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl shadow-purple-100/20 dark:shadow-none hover:scale-[1.02] transition-transform">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Day Streak</p>
+                    <h3 className="text-3xl font-black text-slate-800 dark:text-white mt-2">{stats.streak}<span className="text-sm font-bold text-slate-400 ml-1">days</span></h3>
+                  </div>
+                  <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl text-orange-600 dark:text-orange-400">
+                    <Flame className="w-6 h-6" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Avg. Accuracy</p>
-                  <h3 className="text-3xl font-bold text-slate-800 dark:text-white mt-2">{stats.avgAccuracy}%</h3>
-                </div>
-                <div className={`p-3 rounded-lg ${stats.avgAccuracy >= 80 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'}`}>
-                  <TrendingUp className="w-6 h-6" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Day Streak</p>
-                  <h3 className="text-3xl font-bold text-slate-800 dark:text-white mt-2">{stats.streak}<span className="text-sm font-normal text-slate-400 ml-1">days</span></h3>
-                </div>
-                <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600 dark:text-orange-400">
-                  <Flame className="w-6 h-6" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
-              <h3 className="font-bold text-slate-800 mb-6">XP History</h3>
-              {data.length > 0 ? (
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                      <Tooltip
-                        cursor={{ fill: '#f8fafc' }}
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      />
-                      <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-                        {data.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.score >= 0 ? '#10b981' : '#ef4444'} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-slate-400 italic">
-                  No activity data yet.
-                </div>
-              )}
-            </Card>
-
-            <Card className="lg:col-span-1">
-              <h3 className="font-bold text-slate-800 mb-4">Recent Activity</h3>
-              <div className="space-y-4">
-                {recentActivity.length > 0 ? (
-                  recentActivity.map((activity, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100">
-                      <div>
-                        <div className="font-medium text-sm text-slate-900 line-clamp-1">{activity.skill}</div>
-                        <div className="text-xs text-slate-500">{activity.time}</div>
-                      </div>
-                      <div className={`font-bold text-sm ${activity.score >= 0 ? 'text-emerald-600' : 'text-rose-600'
-                        }`}>
-                        {activity.score > 0 ? '+' : ''}{activity.score} XP
-                      </div>
-                    </div>
-                  ))
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom duration-500 delay-200">
+              <Card className="lg:col-span-2 shadow-xl shadow-slate-100/50 dark:shadow-none border-slate-100">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                  <div className="w-2 h-6 bg-purple-500 rounded-full"></div>
+                  XP History
+                </h3>
+                {data.length > 0 ? (
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                        <Tooltip
+                          cursor={{ fill: '#f8fafc' }}
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Bar dataKey="score" radius={[6, 6, 0, 0]}>
+                          {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.score >= 0 ? '#10b981' : '#ef4444'} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-400 text-sm">
-                    No recent quizzes taken.
+                  <div className="h-[300px] flex items-center justify-center text-slate-400 italic">
+                    No activity data yet.
                   </div>
                 )}
+              </Card>
 
-                {recentActivity.length > 0 && stats.avgAccuracy < 50 && (
-                  <div className="bg-rose-50 border border-rose-100 p-3 rounded-lg flex gap-3 items-start mt-4">
-                    <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
-                    <div className="text-xs text-rose-700">
-                      <strong>Needs Attention:</strong> Average score is below 50%. Consider reviewing "Counting & Number Sense" together.
+              <Card className="lg:col-span-1 shadow-xl shadow-slate-100/50 dark:shadow-none border-slate-100">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                  <div className="w-2 h-6 bg-emerald-500 rounded-full"></div>
+                  Recent Activity
+                </h3>
+                <div className="space-y-3">
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map((activity, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 hover:bg-slate-100 transition-colors">
+                        <div>
+                          <div className="font-bold text-sm text-slate-900 dark:text-slate-200 line-clamp-1">{activity.skill}</div>
+                          <div className="flex items-center gap-1 text-xs text-slate-500">
+                            <Clock className="w-3 h-3" />
+                            {activity.time}
+                          </div>
+                        </div>
+                        <div className={`font-black text-sm ${activity.score >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                          }`}>
+                          {activity.score > 0 ? '+' : ''}{activity.score} XP
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-slate-400 text-sm">
+                      No recent quizzes taken.
                     </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
-        </>
-      )}
+                  )}
+
+                  {recentActivity.length > 0 && stats.avgAccuracy < 50 && (
+                    <div className="bg-rose-50 border border-rose-100 p-3 rounded-lg flex gap-3 items-start mt-4">
+                      <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                      <div className="text-xs text-rose-700">
+                        <strong>Needs Attention:</strong> Average score is below 50%. Consider reviewing "Counting & Number Sense" together.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

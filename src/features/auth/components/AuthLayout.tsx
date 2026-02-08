@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '@theme/index';
 import { KodaLogo } from '@shared/components/KodaLogo';
-import { Sparkles, Star } from 'lucide-react';
+
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -15,34 +15,18 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
 
     return (
         <div className={`min-h-screen relative overflow-hidden ${isDark ? 'bg-[#0c1222]' : 'bg-[#f0f9ff]'}`}>
-            {/* Gradient mesh background */}
+            {/* Background Pattern - Subtle Grid for Tech/Crypto Feel */}
             <div className="absolute inset-0 overflow-hidden">
-                {/* Primary gradient blob */}
                 <div
-                    className={`absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl opacity-30 ${isDark ? 'bg-indigo-600' : 'bg-indigo-400'}`}
-                />
-                {/* Secondary gradient blob */}
-                <div
-                    className={`absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl opacity-30 ${isDark ? 'bg-cyan-600' : 'bg-cyan-400'}`}
-                />
-                {/* Accent blob */}
-                <div
-                    className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-20 ${isDark ? 'bg-purple-600' : 'bg-purple-400'}`}
+                    className={`absolute inset-0 ${isDark
+                        ? 'opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]'
+                        : 'opacity-[0.05] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]'}`}
                 />
 
-                {/* Floating decorative elements - Stars/Sparkles for younger appeal */}
-                <div className="absolute top-20 left-[15%] animate-float opacity-40">
-                    <Star className={`w-6 h-6 ${isDark ? 'text-yellow-400' : 'text-yellow-500'} fill-current`} />
-                </div>
-                <div className="absolute top-40 right-[20%] animate-float opacity-30" style={{ animationDelay: '1s' }}>
-                    <Sparkles className={`w-8 h-8 ${isDark ? 'text-cyan-400' : 'text-cyan-500'}`} />
-                </div>
-                <div className="absolute bottom-32 left-[25%] animate-float opacity-40" style={{ animationDelay: '0.5s' }}>
-                    <Star className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-500'} fill-current`} />
-                </div>
-                <div className="absolute bottom-48 right-[15%] animate-float opacity-30" style={{ animationDelay: '1.5s' }}>
-                    <Sparkles className={`w-6 h-6 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
-                </div>
+                {/* Subtle top glow */}
+                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full blur-3xl opacity-20 pointer-events-none 
+                    ${isDark ? 'bg-indigo-900/50' : 'bg-indigo-100'}`}
+                />
             </div>
 
             {/* Content */}
@@ -65,11 +49,11 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
                 <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                     <div
                         className={`
-                            py-8 px-4 sm:px-10 sm:rounded-2xl
+                            py-8 px-4 sm:px-10 rounded-lg
                             animate-slide-up
                             ${isDark
-                                ? 'bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 shadow-2xl shadow-black/20'
-                                : 'bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl shadow-indigo-500/10'
+                                ? 'bg-slate-900 border border-slate-800 shadow-xl'
+                                : 'bg-white border border-slate-200 shadow-xl'
                             }
                         `}
                     >

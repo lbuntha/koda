@@ -61,6 +61,10 @@ import { StudentLeaderboard } from './StudentLeaderboard';
 import { StudentBadges } from './StudentBadges';
 import { StudentDashboard } from './dashboard/StudentDashboard';
 
+// Tutorial imports
+import { TutorialProvider, TutorialOverlay, useTutorial, studentTutorialSteps, STUDENT_TUTORIAL_ID } from './tutorial';
+
+
 // Constants
 import { useAuth, logoutUser } from '@auth';
 
@@ -104,6 +108,24 @@ interface StudentViewProps {
 }
 
 export const StudentView: React.FC<StudentViewProps> = ({
+  initialViewMode = 'dashboard',
+  currentUser: propUser,
+  studentId,
+  skillsBySubject: propSkillsBySubject
+}) => {
+  return (
+    <TutorialProvider>
+      <StudentViewContent
+        initialViewMode={initialViewMode}
+        currentUser={propUser}
+        studentId={studentId}
+        skillsBySubject={propSkillsBySubject}
+      />
+    </TutorialProvider>
+  );
+};
+
+const StudentViewContent: React.FC<StudentViewProps> = ({
   initialViewMode = 'dashboard',
   currentUser: propUser,
   studentId,
@@ -165,6 +187,22 @@ export const StudentView: React.FC<StudentViewProps> = ({
     window.addEventListener('open-student-profile', handleOpenProfile);
     return () => window.removeEventListener('open-student-profile', handleOpenProfile);
   }, []);
+
+  // --- Tutorial Logic ---
+  const { startTutorial } = useTutorial();
+
+  useEffect(() => {
+    // Check if user has seen tutorial or if specifically requested (e.g. valid new user)
+    const hasSeen = localStorage.getItem(`tutorial_completed_${STUDENT_TUTORIAL_ID}`);
+    // Also potentially check if user just signed up (createdAt is recent?)
+    // For now, just check local storage.
+    if (!hasSeen && !isLoading) { // Wait for loading to finish so DOM is likely ready
+      // Small delay to ensure rendering
+      setTimeout(() => {
+        startTutorial(studentTutorialSteps);
+      }, 1500);
+    }
+  }, [isLoading, startTutorial]);
 
   // Fetch User if studentId is provided but no currentUser
   useEffect(() => {
@@ -577,6 +615,7 @@ export const StudentView: React.FC<StudentViewProps> = ({
           }
         </div>
       )}
+      <TutorialOverlay />
     </div>
   );
 };

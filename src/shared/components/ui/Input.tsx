@@ -29,7 +29,7 @@ export const Input: React.FC<InputProps> = ({
                 </label>
             )}
             <input
-                className={`w-full px-3 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${inputStyle} ${error ? 'border-red-500' : ''} ${className}`}
+                className={`w-full px-3 py-2 rounded-md border transition-colors focus:outline-none focus:ring-2 ${inputStyle} ${error ? 'border-red-500' : ''} ${className}`}
                 {...props}
             />
             {error && (
@@ -67,7 +67,7 @@ export const Select: React.FC<SelectProps> = ({
                 </label>
             )}
             <select
-                className={`w-full px-3 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${selectStyle} ${className}`}
+                className={`w-full px-3 py-2 rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${selectStyle} ${className}`}
                 {...props}
             >
                 {options.map((opt) => (

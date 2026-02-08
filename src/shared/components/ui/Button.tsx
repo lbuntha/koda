@@ -14,7 +14,7 @@ export const Button: React.FC<ButtonProps> = ({
     const isDark = resolvedMode === 'dark';
 
     const baseStyle = `
-        rounded-xl font-semibold transition-all duration-200 
+        rounded-md font-semibold transition-all duration-200 
         flex items-center justify-center gap-2
         active:scale-[0.98] disabled:active:scale-100
     `;

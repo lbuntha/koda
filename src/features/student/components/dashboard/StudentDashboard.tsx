@@ -118,7 +118,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <p className="text-slate-400 dark:text-slate-500 text-xs font-medium">{getGreeting()} 👋</p>
-                                <h1 className="text-xl font-black text-slate-800 dark:text-white">
+                                <h1 id="student-greeting-mobile" className="text-xl font-black text-slate-800 dark:text-white">
                                     Hello, {currentUser?.displayName || currentUser?.name || 'Learner'}!
                                 </h1>
                             </div>
@@ -132,7 +132,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                                         <Search className="w-4 h-4 text-slate-500" />
                                     </button>
                                 )}
-                                <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-700/50">
+                                <div id="student-streak-mobile" className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-700/50">
                                     <Flame className="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse" />
                                     <span className="font-bold text-amber-700 dark:text-amber-400 text-sm">{streak}</span>
                                 </div>
@@ -249,7 +249,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                         /* Smart Navigation Mode (Default) - REDESIGNED */
                         <div className="pb-24 animate-in fade-in slide-in-from-bottom duration-500">
                             {/* 1. Hero */}
-                            <div className="px-4">
+                            <div className="px-4" id="student-hero-mobile">
                                 <StudentHero
                                     skill={inProgressSkills[0] || goalSkills[0] || recommendedSkills[0] || skills[0]}
                                     onPlay={(id) => gameEngine.startPractice(skills.find(s => s.id === id)!)}
@@ -396,7 +396,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div className="max-w-7xl mx-auto relative z-10">
                         <div className="animate-in fade-in slide-in-from-left duration-500">
                             <p className="text-indigo-200 text-sm font-medium mb-1">{getGreeting()} 👋</p>
-                            <h1 className="text-3xl font-black text-white mb-1">
+                            <h1 id="student-greeting-desktop" className="text-3xl font-black text-white mb-1">
                                 Welcome Back, {currentUser?.displayName || currentUser?.name || 'Learner'}!
                             </h1>
                             <p className="text-indigo-200/80 text-base">Let's continue your learning journey</p>
@@ -407,7 +407,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 {/* Stats Cards */}
                 <div className="max-w-7xl mx-auto px-6 -mt-12 relative z-20">
                     <div className="grid grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom duration-500 delay-100">
-                        <div className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 hover:scale-105 transition-transform">
+                        <div id="student-streak-desktop" className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-5 shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 hover:scale-105 transition-transform">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200/50">
                                     <Flame className="w-6 h-6 text-white fill-white" />
@@ -521,7 +521,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <Target className="w-6 h-6 text-amber-500" />
-                                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">My Priority Goals</h2>
+                                    <h2 id="student-goals-desktop" className="text-xl font-bold text-slate-800 dark:text-slate-100">My Priority Goals</h2>
                                 </div>
                                 <button
                                     onClick={() => setViewMode('goals')}

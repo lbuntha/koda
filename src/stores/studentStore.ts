@@ -109,8 +109,8 @@ export const saveStudentResult = async (result: StudentResult): Promise<void> =>
     }
 };
 
-export const getStudentStats = (studentId: string) => {
-    const results = getStudentResultsSync().filter(r => r.studentId === studentId);
+export const getStudentStats = (studentId: string, preLoadedResults?: StudentResult[]) => {
+    const results = (preLoadedResults || getStudentResultsSync()).filter(r => r.studentId === studentId);
 
     // 1. Total XP
     const totalXP = results.reduce((acc, curr) => acc + (curr.score || 0), 0);
@@ -173,8 +173,14 @@ import { getStoredSkillsSync } from './skillStore';
 // ... (existing imports need to change slightly to avoid circular dependency if settingsStore imports types that import this)
 // Ideally we pass config IN, but for now we'll fetch defaults if needed.
 
-export const getSkillMasteryStatus = (skill: Skill, studentId?: string, systemConfig = DEFAULT_SYSTEM_CONFIG, ranks = DEFAULT_SKILL_RANKS) => {
-    const results = getStudentResultsSync();
+export const getSkillMasteryStatus = (
+    skill: Skill,
+    studentId?: string,
+    systemConfig = DEFAULT_SYSTEM_CONFIG,
+    ranks = DEFAULT_SKILL_RANKS,
+    preLoadedResults?: StudentResult[]
+) => {
+    const results = preLoadedResults || getStudentResultsSync();
     let skillResults = results.filter(r => r.skillId === skill.id);
 
     if (studentId) {

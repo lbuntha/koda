@@ -629,16 +629,14 @@ export const PlatformConfigTab: React.FC<PlatformConfigTabProps> = ({
                 <div>
                     <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Gemini Model</label>
                     <select
+                        key="gemini-model-select-v2"
                         className="w-full border border-slate-200 dark:border-slate-700 rounded p-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                         value={config.geminiModel || 'gemini-pro'}
                         onChange={e => onConfigUpdate('geminiModel', e.target.value)}
                     >
-                        <option value="gemini-pro">Gemini Pro (Default)</option>
-                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (Reasoning)</option>
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast)</option>
-                        <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
-                        <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-                        <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Stable)</option>
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Latest)</option>
+                        <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Preview)</option>
                     </select>
                     <p className="text-xs text-slate-400 mt-1">
                         Select the AI model used for generating quizzes and content.

@@ -33,7 +33,7 @@ const getClient = async (requestedModel?: string) => {
   }
 
   // Prioritize system config model if set, otherwise fallback to requested or default
-  const model = config.geminiModel || requestedModel || "gemini-1.5-flash";
+  let model = config.geminiModel || requestedModel || "gemini-1.5-flash";
 
   return {
     ai: new GoogleGenAI({ apiKey: key }),
@@ -197,29 +197,35 @@ export const generateCurriculumSkills = async (
     The 'section' field is the broad category.
     `;
 
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              section: { type: Type.STRING, description: "Broad Category (e.g. Number and Place Value)" },
-              topic: { type: Type.STRING, description: "Sub-theme (e.g. Counting)" },
-              skillName: { type: Type.STRING, description: "Actionable, short skill name (max 6 words)" },
-              example: { type: Type.STRING, description: "A concrete example of a question" },
-              questionType: { type: Type.STRING },
-              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] }
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                section: { type: Type.STRING, description: "Broad Category (e.g. Number and Place Value)" },
+                topic: { type: Type.STRING, description: "Sub-theme (e.g. Counting)" },
+                skillName: { type: Type.STRING, description: "Actionable, short skill name (max 6 words)" },
+                example: { type: Type.STRING, description: "A concrete example of a question" },
+                questionType: { type: Type.STRING },
+                difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] }
+              },
+              required: ["section", "topic", "skillName", "example", "questionType", "difficulty"],
             },
-            required: ["section", "topic", "skillName", "example", "questionType", "difficulty"],
           },
+          maxOutputTokens: maxTokens,
         },
-        maxOutputTokens: maxTokens,
-      },
-    });
+      });
+    } catch (genError: any) {
+      console.error(`[Gemini Service] Model '${model}' failed.`, genError);
+      throw genError;
+    }
 
     const rawData = cleanAndParseJson(response.text || "[]", "CurriculumGen");
 

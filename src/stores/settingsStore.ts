@@ -224,7 +224,7 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
     maxQuestionsPerQuiz: 20,
     questionsToMasterSkill: 10,
     defaultAiInstruction: "Ensure questions are age-appropriate, encouraging, and free of bias.",
-    geminiModel: "gemini-pro",
+    geminiModel: "gemini-2.0-flash",
     tokenUsage: {
         teacher: 2048,
         parent: 1024,

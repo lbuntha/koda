@@ -117,3 +117,50 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
     const users = await getUsers();
     return users.find(u => u.email === email) || null;
 };
+
+/**
+ * Get multiple users by ID array from Firestore
+ * Optimized to fetch only necessary documents
+ */
+export const getUsersByIds = async (ids: string[]): Promise<User[]> => {
+    if (!ids || ids.length === 0) return [];
+
+    // Chunk requests because "in" query limit is 10
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 10) {
+        chunks.push(ids.slice(i, i + 10));
+    }
+
+    let results: User[] = [];
+
+    // Process chunks
+    for (const chunk of chunks) {
+        // If Firebase is configured, use query
+        if (isFirebaseConfigured()) {
+            try {
+                // We need to import queryDocs/where dynamically or assume they are available 
+                // Since this file imports from @lib/index which re-exports from firestore.ts, we can use queryDocs
+                const { queryDocs } = await import('@lib/index');
+                const { where } = await import('firebase/firestore');
+
+                const chunkUsers = await queryDocs<User>(COLLECTION, [
+                    where('id', 'in', chunk)
+                ]);
+                results = [...results, ...chunkUsers];
+            } catch (err) {
+                console.error("Error fetching user chunk:", err);
+                // Fallback to local filtering if query fails
+                const all = await getUsers();
+                const filtered = all.filter(u => chunk.includes(u.id));
+                results = [...results, ...filtered];
+            }
+        } else {
+            // Local fallback
+            const all = await getUsers();
+            const filtered = all.filter(u => chunk.includes(u.id));
+            results = [...results, ...filtered];
+        }
+    }
+
+    return results;
+};

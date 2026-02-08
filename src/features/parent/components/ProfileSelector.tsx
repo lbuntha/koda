@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { User, Role } from '@types';
-import { getUsers, updateUser } from '@stores';
+import { getUsers, updateUser, getUsersByIds } from '@stores';
 import { logoutUser } from '@features/auth/services/authService';
 import { Avatar } from '@shared/components/ui';
 import { Lock, Pencil } from 'lucide-react';
@@ -19,9 +19,25 @@ export const ProfileSelector: React.FC<ProfileSelectorProps> = ({ parentUser, on
     const [isParentProfileOpen, setIsParentProfileOpen] = useState(false);
 
     const loadProfiles = async () => {
-        const allUsers = await getUsers();
-        const children = allUsers.filter(u => parentUser.children?.includes(u.id));
-        setProfiles([parentUser, ...children]);
+        if (!parentUser.children || parentUser.children.length === 0) {
+            setProfiles([parentUser]);
+            return;
+        }
+
+        try {
+            // High-performance fetch for mobile
+            const children = await getUsersByIds(parentUser.children);
+
+            // Ensure no duplicates and handle potential missing profiles
+            const validChildren = children.filter(c => c && c.id !== parentUser.id);
+            setProfiles([parentUser, ...validChildren]);
+        } catch (error) {
+            console.error("Failed to load profiles:", error);
+            // Fallback to old method just in case
+            const allUsers = await getUsers();
+            const children = allUsers.filter(u => parentUser.children?.includes(u.id));
+            setProfiles([parentUser, ...children]);
+        }
     };
 
     useEffect(() => {

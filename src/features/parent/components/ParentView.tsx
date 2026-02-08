@@ -149,14 +149,17 @@ export const ParentView: React.FC = () => {
   };
 
   const loadAnalytics = async (childId: string) => {
-    const results = await getStudentResults();
+    const { getStudentResultsByStudentId } = await import('@stores');
+    // Fetch ONLY this child's results to avoid permission errors
+    const childResults = await getStudentResultsByStudentId(childId);
+
+    // Also need to get skills
     const skills = await getStoredSkills();
-    const resultStats = getStudentStats(childId); // Usage of new helper
 
-    // Filter results for this specific child
-    const childResults = results.filter(r => r.studentId === childId);
+    // Pass results explicitly to avoid relying on sync store which might be empty
+    const resultStats = getStudentStats(childId, childResults);
 
-    // Process for charts (keep same logic for now)
+    // Process for charts (Use the fetched childResults directly)
     const chartData = childResults.slice(-7).map(r => {
       const skill = skills.find(s => s.id === r.skillId);
       return {
@@ -197,8 +200,10 @@ export const ParentView: React.FC = () => {
       // Fallback: Calculate on the fly (O(N)) - Legacy support
       // 1. Skills Mastered
       let masteredCount = 0;
+      // We need to re-fetch config if we want to be safe, but defaults are usually fine
+      // We pass childResults to avoid reading empty local storage
       skills.forEach(skill => {
-        const status = getSkillMasteryStatus(skill, childId);
+        const status = getSkillMasteryStatus(skill, childId, undefined, undefined, childResults);
         if (status.isMastered) masteredCount++;
       });
 

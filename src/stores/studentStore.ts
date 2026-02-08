@@ -11,6 +11,32 @@ export const getStudentResults = async (): Promise<StudentResult[]> => {
     return await getAll<StudentResult>(RESULTS_COLLECTION);
 };
 
+export const getStudentResultsByStudentId = async (studentId: string): Promise<StudentResult[]> => {
+    // Dynamically import queryDocs to avoid circular dependency issues if any,
+    // though usually safe to import from lib.
+    // Checking previous userStore example, dynamic import was used for safety/optimization.
+    // Here we can try to use the imported queryDocs if we add it to imports, 
+    // but looking at imports: import { getAll, save, remove, saveAll } from '@lib/index';
+    // queryDocs is available in @lib/index.
+
+    // Let's rely on dynamic import or update imports. 
+    // Updating imports is cleaner.
+    const { queryDocs } = await import('@lib/index');
+    const { where } = await import('firebase/firestore');
+
+    try {
+        const results = await queryDocs<StudentResult>(RESULTS_COLLECTION, [
+            where('studentId', '==', studentId)
+        ]);
+        return results;
+    } catch (e) {
+        console.error("Error fetching student results", e);
+        // Fallback to local filter if query fails (e.g. offline/local storage)
+        const all = await getStudentResults();
+        return all.filter(r => r.studentId === studentId);
+    }
+};
+
 export const getStudentResultsSync = (): StudentResult[] => {
     const stored = localStorage.getItem('edu_results');
     return stored ? JSON.parse(stored) : [];

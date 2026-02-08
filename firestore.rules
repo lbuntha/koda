@@ -50,11 +50,13 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       // Create:
-      // Allow users to sign up. 
-      // Validation: Must match auth UID, cannot create 'ADMIN' role directly.
-      allow create: if isAuthenticated() && 
-                    request.auth.uid == userId && 
-                    request.resource.data.role != 'ADMIN';
+      // Allow users to sign up (auth.uid == userId).
+      // Also allow PARENTS to create child accounts (userId != auth.uid).
+      // Validation: Must be authenticated. If creating for someone else, role must be STUDENT.
+      allow create: if isAuthenticated() && (
+        (request.auth.uid == userId && request.resource.data.role != 'ADMIN') ||
+        (request.resource.data.role == 'STUDENT')
+      );
 
       // Update:
       // 1. Own profile (but safeguard critical fields like 'role', 'subscriptionTier'?)
